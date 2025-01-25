@@ -21,9 +21,6 @@ const Navbar = () => {
           <Link to="/cart">Cart</Link>
         </button>
         <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
-          <Link to="/counter">Counter</Link>
-        </button>
-        <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">
           <Link to="/profile">Profile</Link>
         </button>
         <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300">

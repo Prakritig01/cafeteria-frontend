@@ -22,8 +22,9 @@ function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/merchant" element={<MerchantPage />} />
-          <Route path="/counter" element={<CounterPage />} />
+          {/* <Route path="/counter" element={<CounterPage />} /> */}
           <Route path="/users" element={<UserPage />} />
+          <Route path = '/counter/:counterId' element = {<CounterPage/>}/>
         </Routes>
       </Router>
     </div>
