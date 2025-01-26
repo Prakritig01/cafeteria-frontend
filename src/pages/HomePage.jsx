@@ -33,8 +33,8 @@ const HomePage = () => {
   }, []);
 
   const handleCardClick = (counterId,counterName) => {
-    console.log("counterId", counterId);
-    console.log("counterName", counterName);
+    // console.log("counterId", counterId);
+    // console.log("counterName", counterName);
     dispatch(setCurrentCounter(counterName)); // Set the current counter ID
     navigate(`/counter/${counterId}`); // Navigates to the dishes page with the counter ID
   };

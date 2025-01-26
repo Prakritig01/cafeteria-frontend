@@ -8,14 +8,38 @@ import MerchantPage from "./pages/MerchantPage";
 import CounterPage from "./pages/CounterDetail";
 import Navbar from "./components/Navbar";
 import UserPage from "./pages/UserPage";
-
+import { useEffect } from "react";
+import { BASE_URL } from "./utils/apiConfig";
+import { useDispatch } from "react-redux";
+import { setLoading, setCurrentUser } from "./slices/authSlice";
+import { setCart } from "./slices/cartSlice";
+import axios from "axios";
 
 function App() {
-   
+  const dispatch = useDispatch();
+  const fetchCart = async () => {
+    try {
+      dispatch(setLoading(true));
+      const response = await axios.get(`${BASE_URL}/cart`);
+      // console.log("response", response.data);
+      const { user, cart } = response.data;
+      dispatch(setCurrentUser(user));
+      dispatch(setCart(cart));
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
   return (
     <div className="app">
       <Router>
-        <Navbar/>
+        <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/admin" element={<AdminPage />} />
@@ -24,7 +48,7 @@ function App() {
           <Route path="/merchant" element={<MerchantPage />} />
           {/* <Route path="/counter" element={<CounterPage />} /> */}
           <Route path="/users" element={<UserPage />} />
-          <Route path = '/counter/:counterId' element = {<CounterPage/>}/>
+          <Route path="/counter/:counterId" element={<CounterPage />} />
         </Routes>
       </Router>
     </div>
