@@ -20,7 +20,18 @@ const counterSlice = createSlice({
         },
         setCurrentCounter : (state,action) => {
             state.currentCounter = action.payload;
+        },
+        updateDish : (state, action) => {
+            const updatedDish = action.payload;
+            const index = state.dishes.findIndex((dish) => dish._id === updatedDish._id);
+            state.dishes[index] = updatedDish;
+        },
+        deleteDish : (state,action) => {
+            const dishId = action.payload._id;
+            console.log("dishId",dishId);
+            state.dishes = state.dishes.filter((dish) => dish._id !== dishId);
         }
+
     }
 })
 
@@ -30,6 +41,6 @@ export const selectAllDishes = (state) => state.counter.dishes;
 
 export const selectCurrentCounter = (state) => state.counter.currentCounter;
 
-export const {setCounter,setLoading,setDishes,setCurrentCounter} = counterSlice.actions;
+export const {setCounter,setLoading,setDishes,setCurrentCounter,updateDish,deleteDish} = counterSlice.actions;
 
 export default counterSlice.reducer;

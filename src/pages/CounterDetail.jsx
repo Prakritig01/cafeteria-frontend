@@ -38,6 +38,7 @@ const CounterPage = () => {
 
   useEffect(() => {
     fetchDishes();
+    return () => dispatch(setDishes([]));          //cleanup
   }, []);
 
   return (
