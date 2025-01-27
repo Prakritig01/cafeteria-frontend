@@ -89,14 +89,14 @@ const DishCard = ({ dish }) => {
 
         <button
           onClick={handleEditDish}
-          className="p-3  bg-gray-600 text-white font-medium rounded-lg shadow-md hover:bg-gray-800 transition-colors"
+          className="p-3  font-medium rounded-lg shadow-md cursor-pointer"
         >
           <i className="fi fi-rr-edit"></i>
         </button>
 
         <button
           onClick={() => handleDeleteDish(dish._id)}
-          className="p-3  bg-red-400 text-white font-medium rounded-lg shadow-md hover:bg-red-600 transition-colors"
+          className="p-3  font-medium rounded-lg shadow-md cursor-pointer"
         >
           <i className="fi fi-rs-trash"></i>
         </button>
