@@ -7,6 +7,7 @@ import ProfilePage from "./pages/ProfilePage";
 import MerchantPage from "./pages/MerchantPage";
 import CounterPage from "./pages/CounterDetail";
 import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
 import UserPage from "./pages/UserPage";
 import { useEffect } from "react";
 import { BASE_URL } from "./utils/apiConfig";
@@ -14,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setLoading, setCurrentUser } from "./slices/authSlice";
 import { setCart } from "./slices/cartSlice";
 import axios from "axios";
+import NavbarLayout from "./components/NavbarLayout";
 
 function App() {
   const dispatch = useDispatch();
@@ -38,9 +40,9 @@ function App() {
   return (
     <div className="app">
       <Router>
-        <Navbar />
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<HomePage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/profile" element={<ProfilePage />} />

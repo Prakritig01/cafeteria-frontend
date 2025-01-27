@@ -1,4 +1,5 @@
 import React from 'react'
+import NavbarLayout from '@/components/NavbarLayout'
 
 const UserPage = () => {
   return (
@@ -8,4 +9,10 @@ const UserPage = () => {
   )
 }
 
-export default UserPage
+export default function (){
+  return <>
+  <NavbarLayout>
+    <UserPage />
+  </NavbarLayout>
+  </>
+}

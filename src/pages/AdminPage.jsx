@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import NavbarLayout from '@/components/NavbarLayout';
 
 const AdminPage = () => {
   return (
@@ -8,4 +9,10 @@ const AdminPage = () => {
   )
 }
 
-export default AdminPage
+export default function (){
+  return <>
+  <NavbarLayout>
+    <AdminPage />
+  </NavbarLayout>
+  </>
+}

@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import CounterList from "@/components/CounterList";
 import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress
+import NavbarLayout from "@/components/NavbarLayout";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -63,4 +64,12 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default function (){
+  return <>
+  <NavbarLayout>
+    <HomePage />
+  </NavbarLayout>
+  </>
+}
+
+

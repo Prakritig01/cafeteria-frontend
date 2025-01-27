@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import NavbarLayout from '@/components/NavbarLayout'
 
 const MerchantPage = () => {
   return (
@@ -8,4 +9,10 @@ const MerchantPage = () => {
   )
 }
 
-export default MerchantPage
+export default function (){
+  return <>
+  <NavbarLayout>
+    <MerchantPage />
+  </NavbarLayout>
+  </>
+}

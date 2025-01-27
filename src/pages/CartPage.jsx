@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { selectItemFromCart, selectLoading } from "@/slices/cartSlice"; // Import selectors
 import CartCard from "@/components/CartCard"; // Import the CartCard component
 import CircularProgress from "@mui/material/CircularProgress";
+import NavbarLayout from '@/components/NavbarLayout'
 
 const CartPage = () => {
   const cartItems = useSelector(selectItemFromCart); // Select cart items from Redux
@@ -39,4 +40,10 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default function (){
+  return <>
+  <NavbarLayout>
+    <CartPage />
+  </NavbarLayout>
+  </>
+}

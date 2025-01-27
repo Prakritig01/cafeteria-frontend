@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import NavbarLayout from '@/components/NavbarLayout'
 
 const ProfilePage = () => {
   return (
@@ -8,4 +9,10 @@ const ProfilePage = () => {
   )
 }
 
-export default ProfilePage
+export default function (){
+  return <>
+  <NavbarLayout>
+    <ProfilePage />
+  </NavbarLayout>
+  </>
+}

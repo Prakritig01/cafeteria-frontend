@@ -14,6 +14,7 @@ import { BASE_URL } from "./../utils/apiConfig";
 
 import DishCard from "@/components/DishCard";
 import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress
+import NavbarLayout from '@/components/NavbarLayout'
 
 const CounterPage = () => {
   const { counterId } = useParams();
@@ -95,4 +96,10 @@ const CounterPage = () => {
   
 };
 
-export default CounterPage;
+export default function (){
+  return <>
+  <NavbarLayout>
+    <CounterPage />
+  </NavbarLayout>
+  </>
+}
