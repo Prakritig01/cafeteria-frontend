@@ -38,9 +38,9 @@ const HomePage = () => {
     fetchCounter();
   }, []);
 
-  const handleCardClick = (counterId, counterName) => {
-    dispatch(setCurrentCounter(counterName)); // Set the current counter name
-    navigate(`/counter/${counterId}`); // Navigate to the counter page
+  const handleCardClick = (counter) => {
+    dispatch(setCurrentCounter(counter)); // Set the current counter name
+    navigate(`/counter/${counter._id}`); // Navigate to the counter page
   };
 
   return (

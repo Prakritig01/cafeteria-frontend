@@ -13,7 +13,7 @@ const CounterList = ({ counters, handleCardClick }) => {
             {counters.map((counter) => (
               <div
                 key={counter._id}
-                onClick={() => handleCardClick(counter._id, counter.name)}
+                onClick={() => handleCardClick(counter)}
                 className="card w-40 h-28 border p-4 rounded-lg shadow-md cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-xl flex justify-center items-center"
               >
                 <h2 className="text-lg font-semibold text-center text-gray-800">
