@@ -18,6 +18,7 @@ const CounterPage = () => {
   const dishes = useSelector(selectAllDishes);
   const currentCounter = useSelector(selectCurrentCounter);
 
+  // console.log("dishes", dishes);
 
 
 

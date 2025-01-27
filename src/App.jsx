@@ -21,7 +21,6 @@ function App() {
     try {
       dispatch(setLoading(true));
       const response = await axios.get(`${BASE_URL}/cart`);
-      // console.log("response", response.data);
       const { user, cart } = response.data;
       dispatch(setCurrentUser(user));
       dispatch(setCart(cart));

@@ -5,7 +5,7 @@ const counterSlice = createSlice({
     initialState :{
         counter : [],
         dishes : [],
-        loading : true,
+        loading : false,
         currentCounter : null,
     },
     reducers : {
@@ -40,6 +40,8 @@ export const selectAllCounters = (state) => state.counter.counter;
 export const selectAllDishes = (state) => state.counter.dishes;
 
 export const selectCurrentCounter = (state) => state.counter.currentCounter;
+
+export const selectLoading = (state) => state.counter.loading;
 
 export const {setCounter,setLoading,setDishes,setCurrentCounter,updateDish,deleteDish} = counterSlice.actions;
 
