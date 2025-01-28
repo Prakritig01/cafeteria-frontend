@@ -1,24 +1,43 @@
 import React from "react";
-import Box from "@mui/material/Box"; // You can remove this if no longer needed
 
 const CounterList = ({ counters, handleCardClick }) => {
-  
   return (
-    <div className="counter-list">
-      <div className="cards-wrapper">
+    <div className="counter-list px-4 sm:px-6 lg:px-8 py-8">
+      <div className="cards-wrapper max-w-7xl mx-auto">
         {counters.length === 0 ? (
-          <p className="text-center text-gray-600">No counters available. Please add some!</p>
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">
+              No counters available. Please add some!
+            </p>
+          </div>
         ) : (
-          <div className="boundary flex flex-wrap gap-6 justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {counters.map((counter) => (
               <div
                 key={counter._id}
                 onClick={() => handleCardClick(counter)}
-                className="card w-40 h-28 border p-4 rounded-lg shadow-md cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-xl flex justify-center items-center"
+                className="card relative group h-48 rounded-xl overflow-hidden shadow-lg cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-xl"
               >
-                <h2 className="text-lg font-semibold text-center text-gray-800">
-                  {counter.name}
-                </h2>
+                {/* Image background with overlay */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ 
+                    backgroundImage: `url(${counter.image || '/placeholder-image.jpg'})`,
+                    backgroundSize: 'cover'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300" />
+                </div>
+
+                {/* Content overlay */}
+                <div className="relative h-full flex flex-col justify-end p-4 text-white">
+                  <h2 className="text-xl font-bold mb-1 drop-shadow-md">
+                    {counter.name}
+                  </h2>
+                  <p className="text-sm line-clamp-2 opacity-90">
+                    {counter.description || 'No description available'}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

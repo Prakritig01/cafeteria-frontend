@@ -89,8 +89,9 @@ const CounterPage = () => {
 
       if (response.status === 201) {
         fetchData(); // Refresh the dishes list
-        handleCloseModal();
+        
       }
+      handleCloseModal();
     } catch (error) {
       console.error('Error adding dish:', error);
       setFormErrors({ submit: error.response?.data?.message || 'Failed to add dish' });

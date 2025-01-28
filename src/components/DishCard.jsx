@@ -56,7 +56,7 @@ const DishCard = ({ dish }) => {
   return (
     <div
       key={dish._id}
-      className="dish card w-72 h-auto bg-white rounded-xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl"
+      className="dish card flex flex-col w-72 h-auto bg-white rounded-xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl"
     >
       {/* Image Section with Gradient Overlay */}
       <div className="relative h-48 overflow-hidden">
@@ -102,7 +102,8 @@ const DishCard = ({ dish }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between border-t pt-3">
+        <div className="button-div ">
+          <div className="flex items-center justify-between border-t pt-3 ">
           <button
             onClick={() =>
               isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish)
@@ -131,6 +132,8 @@ const DishCard = ({ dish }) => {
             </button>
           </div>
         </div>
+        </div>
+        
       </div>
 
       {/* Edit Modal */}
