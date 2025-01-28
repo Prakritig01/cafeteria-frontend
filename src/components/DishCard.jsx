@@ -32,16 +32,15 @@ const DishCard = ({ dish }) => {
   };
 
   const handleDeleteDish = async (id) => {
-    try{
-        const dishId = id;
-        const response = await axios.delete(`${BASE_URL}/dishes/${dishId}`);
-        dispatch(deleteDish(response.data.dish));
-        console.log("Dish deleted successfully", response.data);
+    try {
+      const dishId = id;
+      const response = await axios.delete(`${BASE_URL}/dishes/${dishId}`);
+      dispatch(deleteDish(response.data.dish));
+      console.log("Dish deleted successfully", response.data);
+    } catch (error) {
+      console.error("Failed to delete dish", error);
     }
-    catch(error){
-        console.error("Failed to delete dish", error);
-    }
-  }
+  };
 
   const handleEditDish = () => {
     setIsEditModalOpen(true); // Open the modal
@@ -53,62 +52,91 @@ const DishCard = ({ dish }) => {
 
   const navigateToCart = () => {
     navigate("/cart");
-  }
+  };
   return (
     <div
       key={dish._id}
-      className="dish card w-72 h-auto p-4 rounded-lg shadow-md transform transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+      className="dish card w-72 h-auto bg-white rounded-xl shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl"
     >
-      {/* Image Section */}
-      <img
-        src={dish.image} // Assuming dish.image contains the URL
-        alt={dish.name}
-        className="w-full h-44 object-contain rounded-lg mb-4"
-      />
-      <h4 className="text-lg font-semibold text-center text-gray-800">
-        {dish.name}
-      </h4>
-      <p className="text-center text-gray-600">{dish.price}</p>
-      <p className="text-center text-gray-500">{dish.description}</p>
-      <p className="text-center text-gray-500">{dish.category}</p>
-
-      <p className="text-center text-gray-500">
-        {dish.inStock ? "In Stock" : "Out of Stock"}
-      </p>
-      <div className="button-div flex justify-evenly items-center  ">
-      <button
-  onClick={() => (isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish))}
-  className={`p-3 font-medium rounded-lg shadow-md transition-colors ${
-    isItemInCart(dish)
-      ? "bg-gray-400 cursor-pointer text-white hover:bg-gray-500"
-      : "bg-blue-500 text-white hover:bg-blue-600"
-  }`}
->
-  {isItemInCart(dish) ? "Go to Cart" : "Add to Cart"}
-</button>
-
-        <button
-          onClick={handleEditDish}
-          className="p-3  font-medium rounded-lg shadow-md cursor-pointer"
-        >
-          <i className="fi fi-rr-edit"></i>
-        </button>
-
-        <button
-          onClick={() => handleDeleteDish(dish._id)}
-          className="p-3  font-medium rounded-lg shadow-md cursor-pointer"
-        >
-          <i className="fi fi-rs-trash"></i>
-        </button>
-
-        {/* Render the modal */}
-        {isEditModalOpen && (
-          <EditDishModal
-            dish={dish} // Pass the current dish details to the modal
-            onClose={handleModalClose} // Handle closing of the modal
-          />
-        )}
+      {/* Image Section with Gradient Overlay */}
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={dish.image}
+          alt={dish.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-800/40 to-transparent" />
+        <div className="absolute bottom-3 left-3 right-3">
+          <div className="flex justify-between items-center text-white">
+            <span className="bg-slate-800/80 px-3 py-1 rounded-full text-sm">
+              {dish.category.toUpperCase()}
+            </span>
+            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-1 rounded-full">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  dish.inStock ? "bg-green-400" : "bg-red-400"
+                }`}
+              />
+              <span className="text-sm">
+                {dish.inStock ? "Available" : "Sold Out"}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Content Section */}
+      <div className="p-4">
+        <div className="mb-3">
+          <h4 className="text-xl font-semibold text-slate-800 mb-1 font-serif">
+            {dish.name}
+          </h4>
+          <p className="text-slate-600 text-sm line-clamp-2 mb-2">
+            {dish.description}
+          </p>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-slate-900">
+              ₹{dish.price.toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between border-t pt-3">
+          <button
+            onClick={() =>
+              isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish)
+            }
+            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+              isItemInCart(dish)
+                ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {isItemInCart(dish) ? "View Cart" : "Add to Cart"}
+          </button>
+
+          <div className="flex gap-2 ml-3">
+            <button
+              onClick={handleEditDish}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <i className="fi fi-rr-edit text-sm" />
+            </button>
+            <button
+              onClick={() => handleDeleteDish(dish._id)}
+              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <i className="fi fi-rs-trash text-sm" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <EditDishModal dish={dish} onClose={handleModalClose} />
+      )}
     </div>
   );
 };
