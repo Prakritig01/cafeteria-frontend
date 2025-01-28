@@ -45,7 +45,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="home-page py-6 px-4">
+    <div className="home-page py-6 px-4 mt-11">
       <div className="counter-container max-w-52-lg mx-auto p-5">
         <h1 className="text-4xl font-bold text-center mb-6">Counters</h1>
         {isLoading ? (

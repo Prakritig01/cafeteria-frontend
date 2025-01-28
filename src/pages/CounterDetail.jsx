@@ -57,7 +57,7 @@ const CounterPage = () => {
   
 
   return (
-    <div className="dishes-container py-6 px-4 w-full flex flex-col">
+    <div className="dishes-container py-6 px-4 w-full flex flex-col mt-11">
       {/* Show loading spinner if data is loading */}
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">

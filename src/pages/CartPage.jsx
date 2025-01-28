@@ -10,7 +10,7 @@ const CartPage = () => {
   const loading = useSelector(selectLoading); // Select loading state from Redux
 
   return (
-    <div className="CartPage">
+    <div className="CartPage py-6 px-4 mt-11">
       <h3 className="text-2xl font-bold text-center mb-6">Cart Page</h3>
 
       {loading ? (
