@@ -24,6 +24,7 @@ function App() {
       dispatch(setLoading(true));
       const response = await axios.get(`${BASE_URL}/cart`);
       const { user, cart } = response.data;
+      // console.log("user", user);
       dispatch(setCurrentUser(user));
       dispatch(setCart(cart));
     } catch (error) {
@@ -34,7 +35,12 @@ function App() {
   };
 
   useEffect(() => {
+    console.log("App component mounted");
     fetchCart();
+
+    return() => {
+      console.log("App component unmounted");
+    }
   }, []);
 
   return (

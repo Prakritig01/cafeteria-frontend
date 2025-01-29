@@ -3,7 +3,7 @@ import NavbarLayout from '@/components/NavbarLayout';
 
 const AdminPage = () => {
   return (
-    <div>
+    <div className='mt-15'>
       AdminPAge
     </div>
   )

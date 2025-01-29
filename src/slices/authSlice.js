@@ -6,6 +6,7 @@ const authSlice = createSlice({
     initialState : {
         currentUser : null,
         loading: true,
+        merchantCounters : [],
     },
     reducers : {
         setCurrentUser : (state,action) =>{
@@ -20,11 +21,23 @@ const authSlice = createSlice({
         setLoading: (state, action) => {
             state.loading = !!action.payload;
         },
+        setMerchantCounters: (state, action) => {
+            state.merchantCounters = action.payload;
+        },
+        updateMerchantCounters: (state, action) => {
+            const updatedCounter = action.payload;
+            const index = state.merchantCounters.findIndex((counter) => counter._id === updatedCounter._id);
+            state.merchantCounters[index] = updatedCounter;
+        }
     }
 })
 
-export const {setCurrentUser,removeCurrentUser,setLoading} = authSlice.actions;
+export const {setCurrentUser,removeCurrentUser,setLoading,setMerchantCounters,updateMerchantCounters} = authSlice.actions;
 
 export const selectCurrentUser = (state) => state.auth.currentUser;
+
+export const selectLoading = (state) => state.auth.loading;
+
+export const selectMerchantCounters = (state) => state.auth.merchantCounters;
 
 export default authSlice.reducer;

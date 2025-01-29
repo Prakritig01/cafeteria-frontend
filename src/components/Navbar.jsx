@@ -34,6 +34,13 @@ const Navbar = () => {
         <button className="px-4 py-2 text-xl">
           <Link to="/users">Users</Link>
         </button>
+        <button className="px-4 py-2 text-xl">
+          <Link to="/merchant">Merchant Panel</Link>
+        </button>
+        <button className="px-4 py-2 text-xl">
+          <Link to="/admin">Admin Panel</Link>
+        </button>
+
       </div>
 
       {/* Right part */}
