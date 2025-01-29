@@ -1,114 +1,104 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Modal,
-  Box,
-  TextField,
-  Button,
-  CircularProgress,
-  Typography,
-} from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectLoading, setCounter, setLoading, updateCounter } from '@/slices/counterSlice';
-import axios from 'axios';
-import { BASE_URL } from '@/utils/apiConfig';
-import { setMerchantCounters, updateMerchantCounters } from '@/slices/authSlice';
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Select, MenuItem, Checkbox, ListItemText } from "@mui/material";
 
-const EditCounterModal = ({ counter, open, onClose, onSave }) => {
-  const dispatch = useDispatch();
-  const loading = useSelector(selectLoading);
-  
-
+const EditCounterModal = ({ counter, open, onClose, onSave, merchants }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    image: '',
+    name: "",
+    description: "",
+    image: "",
+    merchant: [], // Existing merchant array
+    merchantIds: [], // ✅ FIX: Add merchantIds for Select dropdown
   });
 
-  // Update form data when counter changes
+  // ✅ FIX: Properly initialize `merchantIds` from `counter.merchant`
   useEffect(() => {
     if (counter) {
       setFormData({
-        name: counter.name || '',
-        description: counter.description || '',
-        image: counter.image || '',
+        name: counter.name || "",
+        description: counter.description || "",
+        image: counter.image || "",
+        merchant: counter.merchant || [],
+        merchantIds: counter.merchant.map((m) => m._id) || [], // ✅ Ensure merchantIds gets ObjectIds
       });
     }
   }, [counter]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    dispatch(setLoading(true)); // Set loading state
+  // ✅ FIX: Ensure selected merchants are properly updated
+  const handleMerchantChange = (event) => {
+    setFormData({
+      ...formData,
+      merchantIds: event.target.value, // ✅ Updating merchantIds directly
+    });
+  };
 
-    try {
-      const response = await axios.patch(`${BASE_URL}/counter/${counter._id}`, formData);
-      if (response.status === 200) {
-        // Optimistic UI update - immediately update the counter in the store
-        dispatch(updateCounter(response.data.counter));
-        // dispatch(setMerchantCounters({...counter,response.data.counter}));
-        dispatch(updateMerchantCounters(response.data.counter));
-        onClose(); // Close modal after saving
-      }
-    } catch (error) {
-      console.error('Error updating counter:', error);
-    } finally {
-      dispatch(setLoading(false)); // Reset loading state
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { name, description, image, merchantIds } = formData;
+
+    const updatedCounter = {
+      ...counter,
+      name,
+      description,
+      image,
+      merchant: merchantIds, // ✅ FIX: Send merchantIds instead of whole merchant objects
+    };
+
+    onSave(updatedCounter);
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 400,
-          bgcolor: 'background.paper',
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          Edit Counter
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Counter Name"
-            fullWidth
-            margin="normal"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <TextField
-            label="Description"
-            fullWidth
-            margin="normal"
-            multiline
-            rows={3}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          />
-          <TextField
-            label="Image URL"
-            fullWidth
-            margin="normal"
-            value={formData.image}
-            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-          />
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button onClick={onClose} disabled={loading}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained" disabled={loading}>
-              {loading ? <CircularProgress size={24} /> : 'Save'}
-            </Button>
-          </Box>
-        </form>
-      </Box>
-    </Modal>
+    <Dialog open={open} onClose={onClose} fullWidth>
+      <DialogTitle>Edit Counter</DialogTitle>
+      <DialogContent>
+        <TextField
+          fullWidth
+          label="Name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          margin="dense"
+        />
+        <TextField
+          fullWidth
+          label="Description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          margin="dense"
+        />
+        <TextField
+          fullWidth
+          label="Image URL"
+          value={formData.image}
+          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          margin="dense"
+        />
+
+        {/* ✅ FIX: Use merchantIds in Select */}
+        <Select
+          fullWidth
+          multiple
+          value={formData.merchantIds} // ✅ FIX: Use merchantIds instead of merchant
+          onChange={handleMerchantChange}
+          renderValue={(selected) =>
+            selected.map((id) => merchants.find((m) => m._id === id)?.name).join(", ")
+          }
+        >
+          {merchants.map((merchant) => (
+            <MenuItem key={merchant._id} value={merchant._id}>
+              <Checkbox checked={formData.merchantIds.includes(merchant._id)} />
+              <ListItemText primary={merchant.name} />
+            </MenuItem>
+          ))}
+        </Select>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="secondary">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

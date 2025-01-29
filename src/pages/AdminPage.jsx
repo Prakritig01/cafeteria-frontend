@@ -4,6 +4,7 @@ import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import NavbarLayout from "@/components/NavbarLayout";
 import AddCounterModal from "@/components/AddCounterModal";
+import EditCounterModal from "@/components/EditCounterModal"; // Add Edit Modal component
 import { BASE_URL } from "@/utils/apiConfig";
 
 // Redux actions (you'll need to create these in your counterSlice)
@@ -13,6 +14,9 @@ import {
   selectLoading,
   setLoading,
   setCounter,
+  updateCounter,
+  selectCurrentCounter,
+  setCurrentCounter,
 } from "@/slices/counterSlice";
 import { selectAllMerchants, setMerchants } from "@/slices/authSlice";
 
@@ -20,10 +24,12 @@ const AdminPage = () => {
   const dispatch = useDispatch();
   const counters = useSelector(selectAllCounters);
   const loading = useSelector(selectLoading);
+  const currentCounter = useSelector(selectCurrentCounter);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false); // State for Edit Modal
   const merchnatsAvailable = useSelector(selectAllMerchants);
 
-  console.log("merchnatsAvailable", merchnatsAvailable);
+  // console.log("merchants", merchnatsAvailable);
 
   const fetchData = async () => {
     try {
@@ -34,14 +40,11 @@ const AdminPage = () => {
       dispatch(setCounter(countersResponse.data.counters));
 
       const role = "merchant"; // You can set this dynamically based on user input or context
-
       const query = role ? `?role=${role}` : "";
 
-      // Make the API call with the constructed query
+      // Fetch all merchants
       const merchantsResponse = await axios.get(`${BASE_URL}/users${query}`);
-      // console.log("merchantsResponse", merchantsResponse.data.users);
       dispatch(setMerchants(merchantsResponse.data.users));
-      
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -61,7 +64,6 @@ const AdminPage = () => {
         merchant: counterData.merchantIds, // Array of merchant IDs
       });
 
-      // Update Redux state with new counter
       dispatch(setCounter([...counters, response.data.counter]));
       setAddModalOpen(false);
     } catch (error) {
@@ -71,16 +73,41 @@ const AdminPage = () => {
     }
   };
 
+  const handleEditCounter = async (updatedCounter) => {
+    try {
+      console.log("flow here in handle edit counter", updatedCounter);
+      dispatch(setLoading(true));
+      const response = await axios.patch(
+        `${BASE_URL}/counter/${updatedCounter._id}`,
+        updatedCounter
+      );
+      console.log("response in edit", response);
+
+      dispatch(updateCounter(response.data.counter)); // Update the counter in Redux
+      setEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating counter:", error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
   const handleDeleteCounter = async (counterId) => {
     try {
       dispatch(setLoading(true));
       await axios.delete(`${BASE_URL}/counter/${counterId}`);
-      dispatch(deleteCounter(counterId));
+      dispatch(deleteCounter(counterId)); // Remove the counter from Redux
     } catch (error) {
       console.error("Error deleting counter:", error);
     } finally {
       dispatch(setLoading(false));
     }
+  };
+
+  const getSortedMerchantNames = (counter) => {
+    return counter.merchant
+      .map((merchant) => merchant.name) // Extract merchant names
+      .sort((a, b) => a.localeCompare(b)); // Sort alphabetically
   };
 
   if (loading) {
@@ -111,6 +138,7 @@ const AdminPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {counters.map((counter) => (
+              // console.log("counter", counter),
               <div
                 key={counter._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200"
@@ -132,16 +160,36 @@ const AdminPage = () => {
                     {counter.description || "No description available"}
                   </p>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">
-                      {counter.merchant.length} merchants assigned
-                    </span>
-                    <button
-                      onClick={() => handleDeleteCounter(counter._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <i className="fi fi-rs-trash" />
-                    </button>
+                  {/* Display the names of the merchants assigned */}
+                  <span className="text-sm text-gray-500">
+                    {getSortedMerchantNames(counter).map((name, index) => (
+                      <span key={name}>
+                        {name}
+                        {index < getSortedMerchantNames(counter).length - 1
+                          ? ", "
+                          : ""}
+                      </span>
+                    ))}
+                  </span>
+
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          dispatch(setCurrentCounter(counter));
+                          setEditModalOpen(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                      >
+                        <i className="fi fi-rr-edit" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCounter(counter._id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <i className="fi fi-rs-trash" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -155,6 +203,17 @@ const AdminPage = () => {
           onSubmit={handleAddCounter}
           merchants={merchnatsAvailable}
         />
+
+        {/* Edit Counter Modal */}
+        {isEditModalOpen && currentCounter && (
+          <EditCounterModal
+            counter={currentCounter}
+            open={isEditModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            onSave={handleEditCounter}
+            merchants={merchnatsAvailable}
+          />
+        )}
       </div>
     </div>
   );
