@@ -42,6 +42,10 @@ const counterSlice = createSlice({
         state.counter[index] = updatedCounter;
       }
     },
+    deleteCounter : (state,action) => {
+      const counterId = action.payload._id;
+      state.counter = state.counter.filter((counter) => counter._id !== counterId);
+    }
   },
 });
 
@@ -61,6 +65,7 @@ export const {
   updateDish,
   deleteDish,
   updateCounter,
+  deleteCounter,
 } = counterSlice.actions;
 
 export default counterSlice.reducer;

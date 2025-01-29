@@ -7,6 +7,7 @@ import {
   selectCurrentUser,
   selectMerchantCounters,
   setMerchantCounters,
+  deleteMerchantCounter,
 } from "@/slices/authSlice";
 
 import {
@@ -15,6 +16,7 @@ import {
   setLoading,
   updateCounter,
   selectCurrentCounter,
+  deleteCounter,
 } from "@/slices/counterSlice";
 import { BASE_URL } from "@/utils/apiConfig";
 import NavbarLayout from "@/components/NavbarLayout";
@@ -28,7 +30,6 @@ const MerchantPage = () => {
   const counters = useSelector(selectMerchantCounters);
   const loading = useSelector(selectLoading);
   const currentCounter = useSelector(selectCurrentCounter);
-
 
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -73,6 +74,23 @@ const MerchantPage = () => {
     }
   };
 
+  const handleDeleteCounter = async (id) => {
+    try {
+      dispatch(setLoading(true)); // Dispatch instead of calling setLoading directly
+      const response = await axios.delete(`${BASE_URL}/counter/${id}`);
+      
+      dispatch(deleteMerchantCounter(response.data.counter));
+      dispatch(deleteCounter(response.data.counter));
+      
+      console.log("Counter deleted successfully", response.data);
+    } catch (error) {
+      console.error("Failed to delete counter", error);
+    } finally {
+      dispatch(setLoading(false)); // Ensure loading state is reset
+    }
+  };
+  
+
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center">
@@ -93,7 +111,6 @@ const MerchantPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {counters.map((counter) => (
-              
               <div
                 key={counter._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
@@ -118,10 +135,17 @@ const MerchantPage = () => {
 
                   {/* Edit Button */}
                   <button
-                    className="mt-2 text-blue-600 hover:text-blue-800"
-                    onClick={(e) => {console.log("counter", counter), openEditModal(counter, e)}}
+                    className="mt-2 cursor-pointer text-gray-500 hover:text-gray-700"
+                    onClick={(e) => {
+                      console.log("counter", counter),
+                        openEditModal(counter, e);
+                    }}
                   >
-                    Edit
+                    <i className="fi fi-rr-edit text-sm" />
+                  </button>
+
+                  <button className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-2xl" onClick={() => handleDeleteCounter(counter._id)}>
+                    <i className="fi fi-rs-trash text-sm" />
                   </button>
                 </div>
               </div>
@@ -132,12 +156,11 @@ const MerchantPage = () => {
         {/* Edit Modal */}
         {isModalOpen && (
           <EditCounterModal
-          counter={currentCounter}
-          open={isModalOpen}
-          onClose={() => setModalOpen(false)}
-          onSave={handleEditSubmit}
-        />
-        
+            counter={currentCounter}
+            open={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={handleEditSubmit}
+          />
         )}
       </div>
     </div>
