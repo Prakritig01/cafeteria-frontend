@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 import NavbarLayout from '@/components/NavbarLayout'
 
-const ProfilePage = () => {
+const UserPage = () => {
   return (
     <div>
-      Profile Page
+      User Page
     </div>
   )
 }
@@ -12,7 +12,7 @@ const ProfilePage = () => {
 export default function (){
   return <>
   <NavbarLayout>
-    <ProfilePage />
+    <UserPage />
   </NavbarLayout>
   </>
 }
