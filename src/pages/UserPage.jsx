@@ -87,29 +87,59 @@ const UserPage = () => {
   };
 
   const handleRoleChange = (user, newRole) => {
-    const updatedUser = { id: user._id,name: user.name, newRole };
+    const updatedUser = { id: user._id, name: user.name, newRole };
     setSelectedUser(updatedUser);
     setOpenModal(true);
     console.log("Updated selectedUser:", updatedUser); // Correct logging
   };
 
   const confirmRoleChange = async () => {
-    console.log("Selected user:", selectedUser); // Correct logging
+    console.log("Selected user:", selectedUser); // Debugging log
+
     if (!selectedUser) return;
+
     try {
       dispatch(setLoading(true));
-      await axios.patch(`${BASE_URL}/users/${selectedUser.id}`, {
-        role: selectedUser.newRole,
-      });
+
+      const response = await axios.patch(
+        `${BASE_URL}/users/${selectedUser.id}`,
+        {
+          role: selectedUser.newRole,
+        }
+      );
+
       dispatch(
         updateUserRole({
           userId: selectedUser.id,
           newRole: selectedUser.newRole,
         })
       );
+
       setSuccess("User role updated successfully");
     } catch (error) {
-      setError("Failed to update user role");
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        const backendMessage = error.response.data.message;
+
+        // Check for specific message from backend
+        if (
+          backendMessage ===
+          "Cannot change role. This merchant is the only one assigned to a counter, which would be orphaned."
+        ) {
+          // Show a specific error message for orphaned counter
+          setError(
+            "This merchant is the only one assigned to a counter and cannot be removed."
+          );
+        } else {
+          // For any other error, show a general message
+          setError(backendMessage);
+        }
+      } else {
+        setError("Failed to update user role");
+      }
     } finally {
       dispatch(setLoading(false));
       setOpenModal(false);
@@ -213,6 +243,13 @@ const UserPage = () => {
           {success}
         </Alert>
       </Snackbar>
+      <Modal open={Boolean(error)} onClose={() => setError(null)}>
+        <div className="modal-content">
+          <h2>Error</h2>
+          <p>{error}</p>
+          <button onClick={() => setError(null)}>OK</button>
+        </div>
+      </Modal>
     </div>
   );
 };
