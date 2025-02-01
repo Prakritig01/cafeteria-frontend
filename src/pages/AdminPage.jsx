@@ -85,6 +85,7 @@ const AdminPage = () => {
 
       dispatch(updateCounter(response.data.counter)); // Update the counter in Redux
       setEditModalOpen(false);
+      fetchData();
     } catch (error) {
       console.error("Error updating counter:", error);
     } finally {

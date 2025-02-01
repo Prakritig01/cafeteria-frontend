@@ -16,6 +16,8 @@ import { setLoading, setCurrentUser } from "./slices/authSlice";
 import { setCart } from "./slices/cartSlice";
 import axios from "axios";
 import NavbarLayout from "./components/NavbarLayout";
+import RegisterPage from "./pages/RegisterPage";
+import LoginPage, { Auth } from "./pages/LoginPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -38,9 +40,9 @@ function App() {
     console.log("App component mounted");
     fetchCart();
 
-    return() => {
+    return () => {
       console.log("App component unmounted");
-    }
+    };
   }, []);
 
   return (
@@ -48,14 +50,20 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/merchant" element={<MerchantPage />} />
-          {/* <Route path="/counter" element={<CounterPage />} /> */}
-          <Route path="/users" element={<UserPage />} />
-          <Route path="/counter/:counterId" element={<CounterPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+
+          <Route element={<Auth />}>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/merchant" element={<MerchantPage />} />
+              {/* <Route path="/counter" element={<CounterPage />} /> */}
+              <Route path="/users" element={<UserPage />} />
+              <Route path="/counter/:counterId" element={<CounterPage />} />
+          </Route>
+
         </Routes>
       </Router>
     </div>
