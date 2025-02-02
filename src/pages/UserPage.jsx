@@ -70,37 +70,48 @@ const UserPage = () => {
   const dispatch = useDispatch();
   const loading = useSelector(selectLoading);
   const users = useSelector(selectAllUsers);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationSeverity, setNotificationSeverity] = useState("success");
 
-  const fetchUsers = useCallback(async () => {
-    if (!isInitialLoad) return; // Prevent refetching if not initial load
+  const showNotification = useCallback((message, severity) => {
+    setNotificationMessage(message);
+    setNotificationSeverity(severity);
+    setNotificationOpen(true);
+  }, []);
+
+  const fetchUsers = async (force = false) => {
+    if (!isInitialLoad && !force) return;
     
     const token = localStorage.getItem("token");
     if (!token) {
-      setError("No authentication token found");
+      showNotification("No authentication token found", "error");
       return;
     }
-
+  
     try {
       const response = await axios.get(`${BASE_URL}/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
       dispatch(setUsers(response.data.users));
     } catch (error) {
-      setError("Failed to fetch users");
+      showNotification("Failed to fetch users", "error");
     } finally {
       setIsInitialLoad(false);
     }
-  }, [dispatch, isInitialLoad]);
+  };
+  
+  // In useEffect
+  useEffect(() => {
+    fetchUsers(true);
+  }, [isInitialLoad]); // Add all dependencies used in fetchUsers
 
   useEffect(() => {
     fetchUsers();
+    return () => {};
   }, [fetchUsers]);
 
   const handleRoleChange = useCallback((user, newRole) => {
@@ -110,63 +121,57 @@ const UserPage = () => {
 
   const confirmRoleChange = async () => {
     if (!selectedUser) return;
-  
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No authentication token found");
-      return;
-    }
-  
-    dispatch(setLoading(true));
+
     try {
-      const response = await axios.patch(
+      // Optimistically update UI
+      dispatch(
+        updateUserRole({
+          userId: selectedUser.id,
+          newRole: selectedUser.newRole,
+        })
+      );
+
+      await axios.patch(
         `${BASE_URL}/users/${selectedUser.id}`,
         { role: selectedUser.newRole },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
-  
-      console.log("Response:", response);
-  
-      dispatch(updateUserRole({
-        userId: selectedUser.id,
-        newRole: selectedUser.newRole,
-      }));
-  
-      setSuccess("User role updated successfully");
+
+      showNotification("User role updated successfully", "success");
     } catch (error) {
-      console.error("Error occurred:", error);
-  
-      let errorMessage = "Failed to update user role"; // Default fallback message
-  
-      if (error.response) {
-        console.error("Error response data:", error.response.data);
-        errorMessage = error.response.data?.message || errorMessage;
-      } else if (error.message) {
-        console.error("Error message:", error.message);
-        errorMessage = error.message;
-      }
-  
-      // Handling the specific orphaned counter error
+      // Rollback on error
+      dispatch(
+        updateUserRole({
+          userId: selectedUser.id,
+          newRole: users.find((u) => u._id === selectedUser.id).role, // Revert to original
+        })
+      );
+
+      let errorMessage =
+        error.response?.data?.message || "Failed to update role";
       if (errorMessage.includes("Cannot change role")) {
         errorMessage =
-          "This merchant is the only one assigned to a counter and cannot be removed.";
+          "This merchant is the only one assigned to counter and cannot be removed. Please assign another merchant before proceeding.";
       }
-
-      console.log("errorMessage after changing", errorMessage);
-  
-      setError(errorMessage); // 🟢 SET ERROR BEFORE CLOSING MODAL
-      
+      showNotification(errorMessage, "error");
     } finally {
-      dispatch(setLoading(false)); // 🟢 ENSURE LOADING IS RESET
       setOpenModal(false);
       setSelectedUser(null);
     }
   };
-  
 
   if (loading && isInitialLoad) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -193,27 +198,43 @@ const UserPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell sx={{ display: "flex", alignItems: "center" }}>
-                    <Avatar src={user.avatar} sx={{ marginRight: 2 }} />
-                    {user.name}
-                  </TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <FormControl size="small">
-                      <RoleSelect
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(user, e.target.value)}
-                      >
-                        <MenuItem value="admin">Admin</MenuItem>
-                        <MenuItem value="customer">Customer</MenuItem>
-                        <MenuItem value="merchant">Merchant</MenuItem>
-                      </RoleSelect>
-                    </FormControl>
+              {users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
+                    <Typography variant="subtitle1" color="textSecondary">
+                      No users available
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell sx={{ display: "flex", alignItems: "center" }}>
+                      <Avatar src={user.avatar} sx={{ marginRight: 2 }} />
+                      {user.name}
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <FormControl size="small">
+                        <RoleSelect
+                          value={user.role}
+                          onChange={(e) =>
+                            handleRoleChange(user, e.target.value)
+                          }
+                          disabled={loading && selectedUser?.id === user._id}
+                        >
+                          <MenuItem value="admin">Admin</MenuItem>
+                          <MenuItem value="customer">Customer</MenuItem>
+                          <MenuItem value="merchant">Merchant</MenuItem>
+                          {loading && selectedUser?.id === user._id && (
+                            <CircularProgress size={20} sx={{ ml: 2 }} />
+                          )}
+                        </RoleSelect>
+                      </FormControl>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </StyledTableContainer>
@@ -239,40 +260,26 @@ const UserPage = () => {
               onClick={confirmRoleChange}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Confirm'}
+              {loading ? <CircularProgress size={24} /> : "Confirm"}
             </Button>
           </Box>
         </Box>
       </Modal>
 
-      {/* <Snackbar
-        open={!!error}
+      <Snackbar
+        open={notificationOpen}
         autoHideDuration={6000}
-        onClose={() => setError("")}
+        onClose={() => setNotificationOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert severity="error" sx={{ width: "100%" }}>
-        {console.log("error", error)}
-          {error}
+        <Alert
+          severity={notificationSeverity}
+          sx={{ width: "100%" }}
+          onClose={() => setNotificationOpen(false)}
+        >
+          {notificationMessage}
         </Alert>
       </Snackbar>
-      <Snackbar
-        open={!!success}
-        autoHideDuration={6000}
-        onClose={() => setSuccess("")}
-      >
-        <Alert severity="success" sx={{ width: "100%" }}>
-          console.log("here");
-          {success}
-        </Alert>
-      </Snackbar> */}
-      {/* <Modal open={Boolean(error)} onClose={() => setError(null)}>
-  <div className="modal-content">
-    <h2>Error</h2>
-    <p>{error}</p>
-    <button onClick={() => setError(null)}>OK</button>
-  </div>
-</Modal> */}
-
     </div>
   );
 };

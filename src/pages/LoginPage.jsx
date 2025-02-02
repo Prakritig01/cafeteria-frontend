@@ -25,11 +25,12 @@ export function Auth() {
 
 const LoginPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
+
   const nextPage = location.state?.from || "/home";
 
   const handleInputChange = (e) => {
@@ -50,7 +51,8 @@ const LoginPage = () => {
 
     localStorage.setItem("token", refresh_token);
     dispatch(setCurrentUser(user));
-    navigate(nextPage);
+    // navigate(nextPage);
+    navigate('/');
   };
 
   return (

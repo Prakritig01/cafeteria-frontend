@@ -20,21 +20,20 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage, { Auth } from "./pages/LoginPage";
 import { CircularProgress } from "@mui/material";
 
+
 function App() {
   const dispatch = useDispatch();
   const loading = useSelector(selectLoading);
 
-  useEffect(() => {
-    console.log("App component mounted");
+  const getUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       dispatch(setLoading(false));
       return;
     }
 
-    // console.log("token", token);
     dispatch(setLoading(true));
-    axios
+    const responseData = axios
       .get(`${BASE_URL}/auth/user`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -51,20 +50,23 @@ function App() {
       .finally(() => {
         dispatch(setLoading(false));
       });
+  };
 
+  useEffect(() => {
+    console.log("App component mounted");
+    getUser();
     return () => {
       console.log("App component unmounted");
     };
   }, []);
 
-  if (loading) {
-    // Render CircularProgress while loading
-    return (
-      <div className="loading-screen">
-        <CircularProgress />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="loading-screen">
+  //       <CircularProgress />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="app">

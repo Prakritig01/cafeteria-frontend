@@ -5,10 +5,12 @@ import Footer from "@/components/Footer";
 import HowItWorks from "@/components/HowItWorks";
 import Welcome from "@/components/Welcome";
 import Cuisines from "@/components/Cuisines";
+import { useDispatch } from "react-redux";
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
+  const token = localStorage.getItem("token");
   const handleNavigate = () => {
     navigate("/home");
   };

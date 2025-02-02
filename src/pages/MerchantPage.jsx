@@ -20,18 +20,21 @@ const MerchantPage = () => {
   const counters = useSelector(selectMerchantCounters);
   const loading = useSelector(selectLoading);
 
+  console.log(currentUser);
+
   useEffect(() => {
     const fetchMerchantCounters = async () => {
       const token = localStorage.getItem("token");
       try {
         dispatch(setLoading(true));
         const response = await axios.get(
-          `${BASE_URL}/counter/merchant/${currentUser._id}` ,{
+          `${BASE_URL}/counter/merchant/${currentUser.id}` ,{
             headers : {
               Authorization : `Bearer ${token}`
             }
           }
         );
+        console.log(response.data.counter);
         dispatch(setMerchantCounters(response.data.counter));
       } catch (error) {
         console.error("Error fetching counters:", error);

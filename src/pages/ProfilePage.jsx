@@ -9,6 +9,8 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  console.log("Current User: ", currentUser);
+
   const handleLogout = () => {
     dispatch(removeCurrentUser());
     localStorage.removeItem('token');
@@ -28,11 +30,15 @@ const ProfilePage = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <span className="font-semibold w-24">Username:</span>
-              <span className="text-gray-600">{currentUser.name}</span>
+              <span className="text-gray-600">{currentUser.username}</span>
             </div>
             <div className="flex items-center">
               <span className="font-semibold w-24">Email:</span>
               <span className="text-gray-600">{currentUser.email}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="font-semibold w-24">Role:</span>
+              <span className="text-gray-600">{currentUser.role}</span>
             </div>
             
             {/* Add Home and Logout buttons */}
