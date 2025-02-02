@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { selectTotalQuantity } from "@/slices/cartSlice";
 
+
 const Navbar = () => {
   const quantity = useSelector(selectTotalQuantity);
   const location = useLocation();
@@ -47,7 +48,8 @@ const Navbar = () => {
       <div className="right-part flex items-center space-x-4">
         <button className="relative px-4 py-2 text-2xl">
           <Link to="/cart">
-            <i className="fi fi-rs-shopping-cart"></i>
+          <i className="fi fi-rs-shopping-cart"></i>
+
           </Link>
           {/* Cart count badge */}
           <span className="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full transform translate-x-2 -translate-y-2">

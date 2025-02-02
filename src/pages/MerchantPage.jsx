@@ -22,10 +22,15 @@ const MerchantPage = () => {
 
   useEffect(() => {
     const fetchMerchantCounters = async () => {
+      const token = localStorage.getItem("token");
       try {
         dispatch(setLoading(true));
         const response = await axios.get(
-          `${BASE_URL}/counter/merchant/${currentUser._id}`
+          `${BASE_URL}/counter/merchant/${currentUser._id}` ,{
+            headers : {
+              Authorization : `Bearer ${token}`
+            }
+          }
         );
         dispatch(setMerchantCounters(response.data.counter));
       } catch (error) {

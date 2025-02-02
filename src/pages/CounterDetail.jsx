@@ -109,11 +109,21 @@ const CounterPage = () => {
   };
 
   const fetchData = async () => {
+    const token = localStorage.getItem('token');
+
     try {
       dispatch(setLoading(true));
       const [counterResponse, dishesResponse] = await Promise.all([
-        axios.get(`${BASE_URL}/counter/${counterId}`),
-        axios.get(`${BASE_URL}/dishes/counter/${counterId}`),
+        axios.get(`${BASE_URL}/counter/${counterId}` , {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        axios.get(`${BASE_URL}/dishes/counter/${counterId}`, {
+          headers : {
+            Authorization : `Bearer ${token}`
+          }
+        }),
       ]);
       dispatch(setCurrentCounter(counterResponse.data.counter));
       dispatch(setDishes(dishesResponse.data.dishes));

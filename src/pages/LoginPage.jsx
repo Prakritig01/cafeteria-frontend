@@ -46,8 +46,9 @@ const LoginPage = () => {
     // Simulate successful login
     const response = await axios.post(`${BASE_URL}/auth/login`, formData);
     console.log("response", response);
-    const { user, token } = response.data;
-    localStorage.setItem("token", token);
+    const { user, refresh_token } = response.data;
+
+    localStorage.setItem("token", refresh_token);
     dispatch(setCurrentUser(user));
     navigate(nextPage);
   };

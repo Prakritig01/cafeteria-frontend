@@ -31,6 +31,7 @@ import {
 import axios from "axios";
 import { BASE_URL } from "@/utils/apiConfig";
 import { styled } from "@mui/system";
+import { useCallback } from "react";
 
 const TableWrapper = styled("div")({
   display: "flex",
@@ -73,86 +74,106 @@ const UserPage = () => {
   const [success, setSuccess] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    if (!isInitialLoad) return; // Prevent refetching if not initial load
+    
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No authentication token found");
+      return;
+    }
+
     try {
-      dispatch(setLoading(true));
-      const response = await axios.get(`${BASE_URL}/users`);
+      const response = await axios.get(`${BASE_URL}/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       dispatch(setUsers(response.data.users));
     } catch (error) {
       setError("Failed to fetch users");
     } finally {
-      dispatch(setLoading(false));
+      setIsInitialLoad(false);
     }
-  };
+  }, [dispatch, isInitialLoad]);
 
-  const handleRoleChange = (user, newRole) => {
-    const updatedUser = { id: user._id, name: user.name, newRole };
-    setSelectedUser(updatedUser);
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleRoleChange = useCallback((user, newRole) => {
+    setSelectedUser({ id: user._id, name: user.name, newRole });
     setOpenModal(true);
-    console.log("Updated selectedUser:", updatedUser); // Correct logging
-  };
+  }, []);
 
   const confirmRoleChange = async () => {
-    console.log("Selected user:", selectedUser); // Debugging log
-
     if (!selectedUser) return;
-
+  
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No authentication token found");
+      return;
+    }
+  
+    dispatch(setLoading(true));
     try {
-      dispatch(setLoading(true));
-
       const response = await axios.patch(
         `${BASE_URL}/users/${selectedUser.id}`,
-        {
-          role: selectedUser.newRole,
-        }
+        { role: selectedUser.newRole },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      dispatch(
-        updateUserRole({
-          userId: selectedUser.id,
-          newRole: selectedUser.newRole,
-        })
-      );
-
+  
+      console.log("Response:", response);
+  
+      dispatch(updateUserRole({
+        userId: selectedUser.id,
+        newRole: selectedUser.newRole,
+      }));
+  
       setSuccess("User role updated successfully");
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        const backendMessage = error.response.data.message;
-
-        // Check for specific message from backend
-        if (
-          backendMessage ===
-          "Cannot change role. This merchant is the only one assigned to a counter, which would be orphaned."
-        ) {
-          // Show a specific error message for orphaned counter
-          setError(
-            "This merchant is the only one assigned to a counter and cannot be removed."
-          );
-        } else {
-          // For any other error, show a general message
-          setError(backendMessage);
-        }
-      } else {
-        setError("Failed to update user role");
+      console.error("Error occurred:", error);
+  
+      let errorMessage = "Failed to update user role"; // Default fallback message
+  
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        errorMessage = error.response.data?.message || errorMessage;
+      } else if (error.message) {
+        console.error("Error message:", error.message);
+        errorMessage = error.message;
       }
+  
+      // Handling the specific orphaned counter error
+      if (errorMessage.includes("Cannot change role")) {
+        errorMessage =
+          "This merchant is the only one assigned to a counter and cannot be removed.";
+      }
+
+      console.log("errorMessage after changing", errorMessage);
+  
+      setError(errorMessage); // 🟢 SET ERROR BEFORE CLOSING MODAL
+      
     } finally {
-      dispatch(setLoading(false));
+      dispatch(setLoading(false)); // 🟢 ENSURE LOADING IS RESET
       setOpenModal(false);
       setSelectedUser(null);
     }
   };
+  
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  if (loading && isInitialLoad) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div className="mt-15">
+    <div className="mt-10">
       <Typography
         variant="h4"
         component="h1"
@@ -183,9 +204,7 @@ const UserPage = () => {
                     <FormControl size="small">
                       <RoleSelect
                         value={user.role}
-                        onChange={(e) => {
-                          handleRoleChange(user, e.target.value);
-                        }}
+                        onChange={(e) => handleRoleChange(user, e.target.value)}
                       >
                         <MenuItem value="admin">Admin</MenuItem>
                         <MenuItem value="customer">Customer</MenuItem>
@@ -218,19 +237,21 @@ const UserPage = () => {
               variant="contained"
               color="primary"
               onClick={confirmRoleChange}
+              disabled={loading}
             >
-              Confirm
+              {loading ? <CircularProgress size={24} /> : 'Confirm'}
             </Button>
           </Box>
         </Box>
       </Modal>
 
-      <Snackbar
+      {/* <Snackbar
         open={!!error}
         autoHideDuration={6000}
         onClose={() => setError("")}
       >
         <Alert severity="error" sx={{ width: "100%" }}>
+        {console.log("error", error)}
           {error}
         </Alert>
       </Snackbar>
@@ -240,16 +261,18 @@ const UserPage = () => {
         onClose={() => setSuccess("")}
       >
         <Alert severity="success" sx={{ width: "100%" }}>
+          console.log("here");
           {success}
         </Alert>
-      </Snackbar>
-      <Modal open={Boolean(error)} onClose={() => setError(null)}>
-        <div className="modal-content">
-          <h2>Error</h2>
-          <p>{error}</p>
-          <button onClick={() => setError(null)}>OK</button>
-        </div>
-      </Modal>
+      </Snackbar> */}
+      {/* <Modal open={Boolean(error)} onClose={() => setError(null)}>
+  <div className="modal-content">
+    <h2>Error</h2>
+    <p>{error}</p>
+    <button onClick={() => setError(null)}>OK</button>
+  </div>
+</Modal> */}
+
     </div>
   );
 };

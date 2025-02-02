@@ -11,39 +11,60 @@ import LandingPage from "./pages/LandingPage";
 import UserPage from "./pages/UserPage";
 import { useEffect } from "react";
 import { BASE_URL } from "./utils/apiConfig";
-import { useDispatch } from "react-redux";
-import { setLoading, setCurrentUser } from "./slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading, setCurrentUser, selectLoading } from "./slices/authSlice";
 import { setCart } from "./slices/cartSlice";
 import axios from "axios";
 import NavbarLayout from "./components/NavbarLayout";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage, { Auth } from "./pages/LoginPage";
+import { CircularProgress } from "@mui/material";
 
 function App() {
   const dispatch = useDispatch();
-  const fetchCart = async () => {
-    try {
-      dispatch(setLoading(true));
-      const response = await axios.get(`${BASE_URL}/cart`);
-      const { user, cart } = response.data;
-      // console.log("user", user);
-      dispatch(setCurrentUser(user));
-      dispatch(setCart(cart));
-    } catch (error) {
-      console.log("error", error);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+  const loading = useSelector(selectLoading);
 
   useEffect(() => {
     console.log("App component mounted");
-    fetchCart();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      dispatch(setLoading(false));
+      return;
+    }
+
+    // console.log("token", token);
+    dispatch(setLoading(true));
+    axios
+      .get(`${BASE_URL}/auth/user`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        const { user } = response.data;
+        // console.log(" in useEffect", user);
+        dispatch(setCurrentUser(user));
+        dispatch(setCart(user.cart || []));
+      })
+      .catch((err) => {
+        console.error("Authentication failed:", err);
+        localStorage.removeItem("token");
+      })
+      .finally(() => {
+        dispatch(setLoading(false));
+      });
 
     return () => {
       console.log("App component unmounted");
     };
   }, []);
+
+  if (loading) {
+    // Render CircularProgress while loading
+    return (
+      <div className="loading-screen">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -54,16 +75,15 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
 
           <Route element={<Auth />}>
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/admin" element={<AdminPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/merchant" element={<MerchantPage />} />
-              {/* <Route path="/counter" element={<CounterPage />} /> */}
-              <Route path="/users" element={<UserPage />} />
-              <Route path="/counter/:counterId" element={<CounterPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/merchant" element={<MerchantPage />} />
+            {/* <Route path="/counter" element={<CounterPage />} /> */}
+            <Route path="/users" element={<UserPage />} />
+            <Route path="/counter/:counterId" element={<CounterPage />} />
           </Route>
-
         </Routes>
       </Router>
     </div>

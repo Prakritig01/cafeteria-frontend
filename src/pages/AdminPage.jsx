@@ -32,11 +32,16 @@ const AdminPage = () => {
   // console.log("merchants", merchnatsAvailable);
 
   const fetchData = async () => {
+    const token = localStorage.getItem("token");
     try {
       dispatch(setLoading(true));
 
       // Fetch all counters
-      const countersResponse = await axios.get(`${BASE_URL}/counter`);
+      const countersResponse = await axios.get(`${BASE_URL}/counter` ,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       dispatch(setCounter(countersResponse.data.counters));
 
       const role = "merchant"; // You can set this dynamically based on user input or context
@@ -120,7 +125,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 mt-15">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Manage Counters</h1>
