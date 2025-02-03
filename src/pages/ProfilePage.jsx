@@ -30,7 +30,7 @@ const ProfilePage = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <span className="font-semibold w-24">Username:</span>
-              <span className="text-gray-600">{currentUser.username}</span>
+              <span className="text-gray-600">{currentUser.name}</span>
             </div>
             <div className="flex items-center">
               <span className="font-semibold w-24">Email:</span>

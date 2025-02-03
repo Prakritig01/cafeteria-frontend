@@ -48,9 +48,16 @@ const LoginPage = () => {
     // Simulate successful login
     const response = await axios.post(`${BASE_URL}/auth/login`, formData);
     console.log("response", response);
-    const { user, refresh_token } = response.data;
+    const {  refresh_token } = response.data;
 
     localStorage.setItem("token", refresh_token);
+
+    const userResponse  = await axios.get(`${BASE_URL}/cart`, {
+      headers : {
+        Authorization : `Bearer ${refresh_token}`
+      }
+    })
+    const user = userResponse.data.user;
     console.log("User logged in:", user);
     dispatch(setCurrentUser(user));
     dispatch(setCart(user.cart || []));

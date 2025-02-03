@@ -39,7 +39,7 @@ function App() {
       })
       .then((response) => {
         const { user,cart } = response.data;
-        console.log(" in useEffect", user);
+        // console.log(" in useEffect", user);
         dispatch(setCurrentUser(user));
         dispatch(setCart(cart || []));
       })
@@ -53,10 +53,10 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("App component mounted");
+    // console.log("App component mounted");
     getUser();
     return () => {
-      console.log("App component unmounted");
+      // console.log("App component unmounted");
     };
   }, []);
 

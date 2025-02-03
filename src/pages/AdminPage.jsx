@@ -48,7 +48,11 @@ const AdminPage = () => {
       const query = role ? `?role=${role}` : "";
 
       // Fetch all merchants
-      const merchantsResponse = await axios.get(`${BASE_URL}/users${query}`);
+      const merchantsResponse = await axios.get(`${BASE_URL}/users${query}`,{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
       dispatch(setMerchants(merchantsResponse.data.users));
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -67,6 +71,10 @@ const AdminPage = () => {
       const response = await axios.post(`${BASE_URL}/counter`, {
         ...counterData,
         merchant: counterData.merchantIds, // Array of merchant IDs
+      },{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
 
       dispatch(setCounter([...counters, response.data.counter]));
@@ -84,7 +92,11 @@ const AdminPage = () => {
       dispatch(setLoading(true));
       const response = await axios.patch(
         `${BASE_URL}/counter/${updatedCounter._id}`,
-        updatedCounter
+        updatedCounter,{
+          headers : {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
       console.log("response in edit", response);
 
@@ -101,7 +113,11 @@ const AdminPage = () => {
   const handleDeleteCounter = async (counterId) => {
     try {
       dispatch(setLoading(true));
-      await axios.delete(`${BASE_URL}/counter/${counterId}`);
+      await axios.delete(`${BASE_URL}/counter/${counterId}`,{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
       dispatch(deleteCounter(counterId)); // Remove the counter from Redux
     } catch (error) {
       console.error("Error deleting counter:", error);

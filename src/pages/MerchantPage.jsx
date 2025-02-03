@@ -20,7 +20,7 @@ const MerchantPage = () => {
   const counters = useSelector(selectMerchantCounters);
   const loading = useSelector(selectLoading);
 
-  console.log(currentUser);
+  console.log("currentUser", currentUser);
 
   useEffect(() => {
     const fetchMerchantCounters = async () => {
@@ -28,7 +28,7 @@ const MerchantPage = () => {
       try {
         dispatch(setLoading(true));
         const response = await axios.get(
-          `${BASE_URL}/counter/merchant/${currentUser.id}` ,{
+          `${BASE_URL}/counter/merchant/${currentUser._id}` ,{
             headers : {
               Authorization : `Bearer ${token}`
             }
