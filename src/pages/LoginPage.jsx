@@ -1,10 +1,9 @@
-import { setCurrentUser,selectCurrentUser ,selectLoading} from "@/slices/authSlice";
+import { setCurrentUser, selectCurrentUser, selectLoading } from "@/slices/authSlice";
 import { BASE_URL } from "@/utils/apiConfig";
 import axios from "axios";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { useLocation, Outlet, Navigate } from "react-router-dom";
+import { Link, useNavigate, useLocation, Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { setCart } from "@/slices/cartSlice";
 
@@ -14,24 +13,21 @@ export function Auth() {
   const loading = useSelector(selectLoading);
  
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
-  // return (user ? <Outlet/> : <div>Login</div>);
-  return user ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" state={{ from: location.pathname }} />
-  );
+  return user ? <Outlet /> : <Navigate to="/login" state={{ from: location.pathname }} />;
 }
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const nextPage = location.state?.from || "/home";
 
   const handleInputChange = (e) => {
@@ -39,30 +35,55 @@ const LoginPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your login logic here
-    console.log("Login data:", formData);
-    // Simulate successful login
-    const response = await axios.post(`${BASE_URL}/auth/login`, formData);
-    console.log("response", response);
-    const {  refresh_token } = response.data;
+    setIsLoading(true);
+    setError("");
 
-    localStorage.setItem("token", refresh_token);
+    try {
+      const response = await axios.post(`${BASE_URL}/auth/login`, formData);
+      const { access_token, refresh_token } = response.data;
 
-    const userResponse  = await axios.get(`${BASE_URL}/cart`, {
-      headers : {
-        Authorization : `Bearer ${refresh_token}`
+      // Store tokens appropriately (consider using httpOnly cookies in production)
+      localStorage.setItem("token", access_token || refresh_token);
+
+      // Get user data
+      const userResponse = await axios.get(`${BASE_URL}/cart`, {
+        headers: { Authorization: `Bearer ${access_token || refresh_token}` }
+      });
+
+      const user = userResponse.data.user;
+      dispatch(setCurrentUser(user));
+      dispatch(setCart(user.cart || []));
+      
+      navigate(nextPage);
+    } catch (err) {
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+            errorMessage = "Invalid email or password";
+            break;
+          case 400:
+            errorMessage = "Please fill all required fields correctly";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later";
+            break;
+        }
+      } else if (err.request) {
+        errorMessage = "Network error. Please check your internet connection";
       }
-    })
-    const user = userResponse.data.user;
-    console.log("User logged in:", user);
-    dispatch(setCurrentUser(user));
-    dispatch(setCart(user.cart || []));
-    // navigate(nextPage);
-    navigate('/');
+      
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -84,6 +105,12 @@ const LoginPage = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label
@@ -101,7 +128,8 @@ const LoginPage = () => {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -122,7 +150,8 @@ const LoginPage = () => {
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -130,9 +159,36 @@ const LoginPage = () => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                disabled={isLoading}
+                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign in
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
               </button>
             </div>
           </form>
