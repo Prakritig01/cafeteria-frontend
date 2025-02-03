@@ -20,14 +20,24 @@ const LandingPage = () => {
       <Navbar />
       <div className="landing-page-component bg-[#f9f9f9]">
         {/* Background Image Section */}
-        <div className="background-photo h-[70vh] w-full">
+        <div className="background-photo h-[70vh] w-full relative">
           <img
             src="https://b.zmtcdn.com/web_assets/81f3ff974d82520780078ba1cfbd453a1583259680.png"
             alt="Background"
             className="w-full h-full object-cover"
           />
+          {/* App Name Overlay */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+            <h1 className="text-7xl md:text-8xl font-bold text-white tracking-wide 
+              drop-shadow-2xl animate-fade-in">
+              CAFETERIA
+            </h1>
+            <p className="text-xl md:text-2xl text-white mt-4 font-semibold 
+              drop-shadow-lg">
+              Discover Your Perfect Meal
+            </p>
+          </div>
         </div>
-
         {/* Pick Your Meal Button */}
         <div
           className="pick-your-meal-btn text-center relative"
