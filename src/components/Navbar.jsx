@@ -56,7 +56,7 @@ const Navbar = () => {
             {quantity}
           </span>
         </button>
-        <button className="px-4 py-2 text-xl cursor-pointer">Login</button>
+        <button className="px-4 py-2 text-xl cursor-pointer"><Link to ='/login'>Login</Link></button>
       </div>
 
       {/* Mobile menu */}

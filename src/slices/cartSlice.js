@@ -45,6 +45,7 @@ const cartSlice = createSlice({
     },
     setCart: (state, action) => {
       state.items = action.payload;
+      console.log("Cart set to:", state.items);
     },
     setLoading: (state, action) => {
       state.loading = !!action.payload;

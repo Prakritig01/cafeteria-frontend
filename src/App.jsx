@@ -34,14 +34,14 @@ function App() {
 
     dispatch(setLoading(true));
     const responseData = axios
-      .get(`${BASE_URL}/auth/user`, {
+      .get(`${BASE_URL}/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        const { user } = response.data;
-        // console.log(" in useEffect", user);
+        const { user,cart } = response.data;
+        console.log(" in useEffect", user);
         dispatch(setCurrentUser(user));
-        dispatch(setCart(user.cart || []));
+        dispatch(setCart(cart || []));
       })
       .catch((err) => {
         console.error("Authentication failed:", err);

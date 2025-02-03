@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocation, Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { setCart } from "@/slices/cartSlice";
 
 export function Auth() {
   const user = useSelector(selectCurrentUser);
@@ -50,7 +51,9 @@ const LoginPage = () => {
     const { user, refresh_token } = response.data;
 
     localStorage.setItem("token", refresh_token);
+    console.log("User logged in:", user);
     dispatch(setCurrentUser(user));
+    dispatch(setCart(user.cart || []));
     // navigate(nextPage);
     navigate('/');
   };

@@ -110,21 +110,24 @@ const CounterPage = () => {
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
-
+  
     try {
       dispatch(setLoading(true));
-      const [counterResponse, dishesResponse] = await Promise.all([
-        axios.get(`${BASE_URL}/counter/${counterId}` , {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }),
-        axios.get(`${BASE_URL}/dishes/counter/${counterId}`, {
-          headers : {
-            Authorization : `Bearer ${token}`
-          }
-        }),
-      ]);
+  
+      const counterResponse = await axios.get(`${BASE_URL}/counter/${counterId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const dishesResponse = await axios.get(`${BASE_URL}/dishes/counter/${counterId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // console.log("counter response", counterResponse);
+      // console.log("dish response", dishesResponse);
       dispatch(setCurrentCounter(counterResponse.data.counter));
       dispatch(setDishes(dishesResponse.data.dishes));
     } catch (error) {
@@ -133,6 +136,7 @@ const CounterPage = () => {
       dispatch(setLoading(false));
     }
   };
+  
 
   useEffect(() => {
     fetchData();

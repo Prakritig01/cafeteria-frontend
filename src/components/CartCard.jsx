@@ -3,6 +3,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { setCart, setLoading } from "@/slices/cartSlice";
 import axios from "axios";
+import { setCurrentUser } from "@/slices/authSlice";
 
 const CartCard = ({ dish, quantity, loading }) => {
   const dispatch = useDispatch();
@@ -12,8 +13,13 @@ const CartCard = ({ dish, quantity, loading }) => {
       dispatch(setLoading(true));
       const response = await axios.patch(`${BASE_URL}/cart/${itemId}`, {
         increment: increment,
+      },{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
       const updatedCart = response.data.cart;
+      // dispatch(setCurrentUser(response.data.user));
       dispatch(setCart(updatedCart));
     } catch (error) {
       console.log("Error in updating quantity", error.message);
@@ -25,11 +31,16 @@ const CartCard = ({ dish, quantity, loading }) => {
   const handleDeleteCartCard = async (itemId) => {
     try {
       dispatch(setLoading(true));
-      const response = await axios.delete(`${BASE_URL}/cart/${itemId}`);
-      const updatedCart = response.data.cart;
-      dispatch(setCart(updatedCart));
+      console.log("Deleting cart card with id:", itemId);
+      const response = await axios.delete(`${BASE_URL}/cart/${itemId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("Delete cart card response:", response);
+      dispatch(setCart(response.data.cart || []));
     } catch (err) {
-      console.log("Error in deleting cart card", err.message);
+      console.log("Error in deleting cart card", err);
     } finally {
       dispatch(setLoading(false));
     }
