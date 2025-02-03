@@ -19,9 +19,14 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const fetchCounter = async () => {
+    const token = localStorage.getItem("token");
     try {
       dispatch(setLoading(true)); // Set loading to true before fetching data
-      const response = await axios.get(`${BASE_URL}/counter`);
+      const response = await axios.get(`${BASE_URL}/counter` ,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const { counters } = response.data;
       dispatch(setCounter(counters));
     } catch (error) {

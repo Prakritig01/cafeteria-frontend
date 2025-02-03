@@ -7,23 +7,32 @@ import { useState } from "react";
 import EditDishModal from "./EditDishModal";
 import { deleteDish } from "@/slices/counterSlice";
 import { useNavigate } from "react-router-dom";
+import { selectCurrentUser } from "@/slices/authSlice";
+import { ROLE } from "@/constants";
 
 const DishCard = ({ dish }) => {
   const navigate = useNavigate();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector(selectItemFromCart);
-  // console.log("cartItems", cartItems);
-  const isItemInCart = (dish) => {
-    // console.log("cartItems", cartItems);
-    // console.log("dish", dish);
+  const user = useSelector(selectCurrentUser);
 
+  const isItemInCart = (dish) => {
     return cartItems.some((item) => item.dish._id === dish._id);
   };
 
   const handleAddToCart = async (dish) => {
     try {
-      const dishResponse = await axios.post(`${BASE_URL}/cart`, { dish });
+      const dishResponse = await axios.post(
+        `${BASE_URL}/cart`,
+        { dish },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      console.log("dishResponse", dishResponse);
       dispatch(setCart(dishResponse.data.cart));
       console.log("Dish added to cart", dishResponse.data);
     } catch (error) {
@@ -34,7 +43,11 @@ const DishCard = ({ dish }) => {
   const handleDeleteDish = async (id) => {
     try {
       const dishId = id;
-      const response = await axios.delete(`${BASE_URL}/dishes/${dishId}`);
+      const response = await axios.delete(`${BASE_URL}/dishes/${dishId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       dispatch(deleteDish(response.data.dish));
       console.log("Dish deleted successfully", response.data);
     } catch (error) {
@@ -104,36 +117,39 @@ const DishCard = ({ dish }) => {
         {/* Action Buttons */}
         <div className="button-div ">
           <div className="flex items-center justify-between border-t pt-3 ">
-          <button
-            onClick={() =>
-              isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish)
-            }
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
-              isItemInCart(dish)
-                ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-          >
-            {isItemInCart(dish) ? "View Cart" : "Add to Cart"}
-          </button>
+            {user && user.role === ROLE.CUSTOMER && (
+              <button
+                onClick={() =>
+                  isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish)
+                }
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  isItemInCart(dish)
+                    ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+              >
+                {isItemInCart(dish) ? "View Cart" : "Add to Cart"}
+              </button>
+            )}
 
-          <div className="flex gap-2 ml-3">
-            <button
-              onClick={handleEditDish}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <i className="fi fi-rr-edit text-sm" />
-            </button>
-            <button
-              onClick={() => handleDeleteDish(dish._id)}
-              className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <i className="fi fi-rs-trash text-sm" />
-            </button>
+            {user && user.role === ROLE.MERCHANT && (
+              <div className="flex gap-2 ml-3">
+                <button
+                  onClick={handleEditDish}
+                  className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <i className="fi fi-rr-edit text-sm" />
+                </button>
+                <button
+                  onClick={() => handleDeleteDish(dish._id)}
+                  className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                >
+                  <i className="fi fi-rs-trash text-sm" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
-        </div>
-        
       </div>
 
       {/* Edit Modal */}

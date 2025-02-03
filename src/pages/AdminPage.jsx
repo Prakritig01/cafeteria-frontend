@@ -32,18 +32,27 @@ const AdminPage = () => {
   // console.log("merchants", merchnatsAvailable);
 
   const fetchData = async () => {
+    const token = localStorage.getItem("token");
     try {
       dispatch(setLoading(true));
 
       // Fetch all counters
-      const countersResponse = await axios.get(`${BASE_URL}/counter`);
+      const countersResponse = await axios.get(`${BASE_URL}/counter` ,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       dispatch(setCounter(countersResponse.data.counters));
 
       const role = "merchant"; // You can set this dynamically based on user input or context
       const query = role ? `?role=${role}` : "";
 
       // Fetch all merchants
-      const merchantsResponse = await axios.get(`${BASE_URL}/users${query}`);
+      const merchantsResponse = await axios.get(`${BASE_URL}/users${query}`,{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
       dispatch(setMerchants(merchantsResponse.data.users));
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -62,6 +71,10 @@ const AdminPage = () => {
       const response = await axios.post(`${BASE_URL}/counter`, {
         ...counterData,
         merchant: counterData.merchantIds, // Array of merchant IDs
+      },{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
 
       dispatch(setCounter([...counters, response.data.counter]));
@@ -79,12 +92,17 @@ const AdminPage = () => {
       dispatch(setLoading(true));
       const response = await axios.patch(
         `${BASE_URL}/counter/${updatedCounter._id}`,
-        updatedCounter
+        updatedCounter,{
+          headers : {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
       console.log("response in edit", response);
 
       dispatch(updateCounter(response.data.counter)); // Update the counter in Redux
       setEditModalOpen(false);
+      fetchData();
     } catch (error) {
       console.error("Error updating counter:", error);
     } finally {
@@ -95,7 +113,11 @@ const AdminPage = () => {
   const handleDeleteCounter = async (counterId) => {
     try {
       dispatch(setLoading(true));
-      await axios.delete(`${BASE_URL}/counter/${counterId}`);
+      await axios.delete(`${BASE_URL}/counter/${counterId}`,{
+        headers : {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
       dispatch(deleteCounter(counterId)); // Remove the counter from Redux
     } catch (error) {
       console.error("Error deleting counter:", error);
@@ -119,7 +141,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 mt-15">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 mt-20">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Manage Counters</h1>

@@ -28,11 +28,14 @@ import {
   FormControlLabel,
   FormHelperText
 } from "@mui/material";
+import { selectCurrentUser } from "@/slices/authSlice";
+import { ROLE } from "@/constants";
 
 const CounterPage = () => {
   const { counterId } = useParams();
   const dispatch = useDispatch();
   const dishes = useSelector(selectAllDishes);
+  const user = useSelector(selectCurrentUser);
   const currentCounter = useSelector(selectCurrentCounter);
   const isLoading = useSelector(selectLoading);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,9 +85,13 @@ const CounterPage = () => {
       const response = await axios.post(`${BASE_URL}/dishes`, {
         ...formData,
         counter: currentCounter._id
+      },{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
       });
 
-      console.log('Add dish response:', response);
+      // console.log('Add dish response:', response);
       dispatch(setDishes([...dishes, response.data.dish]));
 
       if (response.status === 201) {
@@ -109,12 +116,25 @@ const CounterPage = () => {
   };
 
   const fetchData = async () => {
+    const token = localStorage.getItem('token');
+  
     try {
       dispatch(setLoading(true));
-      const [counterResponse, dishesResponse] = await Promise.all([
-        axios.get(`${BASE_URL}/counter/${counterId}`),
-        axios.get(`${BASE_URL}/dishes/counter/${counterId}`),
-      ]);
+  
+      const counterResponse = await axios.get(`${BASE_URL}/counter/${counterId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const dishesResponse = await axios.get(`${BASE_URL}/dishes/counter/${counterId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // console.log("counter response", counterResponse);
+      // console.log("dish response", dishesResponse);
       dispatch(setCurrentCounter(counterResponse.data.counter));
       dispatch(setDishes(dishesResponse.data.dishes));
     } catch (error) {
@@ -123,6 +143,7 @@ const CounterPage = () => {
       dispatch(setLoading(false));
     }
   };
+  
 
   useEffect(() => {
     fetchData();
@@ -147,6 +168,7 @@ const CounterPage = () => {
           )}
 
           <div className="add-dish-btn text-end mr-[15px] mb-4">
+            {user && user.role === ROLE.MERCHANT && (
             <Button 
               variant="contained" 
               color="primary"
@@ -154,12 +176,13 @@ const CounterPage = () => {
             >
               Add New Dish
             </Button>
+            )}
           </div>
 
           <div className="dishes-wrapper mx-auto p-5 w-full">
             {dishes.length === 0 ? (
               <p className="text-center text-gray-600">
-                No dishes available. Please add some!
+                No dishes available!
               </p>
             ) : (
               <div className="dishes flex flex-wrap gap-6 justify-center p-6">
