@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { selectTotalQuantity } from "@/slices/cartSlice";
 import { selectCurrentUser } from "@/slices/authSlice";
-import {ROLE} from '@/constants';
+import { ROLE } from "@/constants";
 
 const Navbar = () => {
   const quantity = useSelector(selectTotalQuantity);
@@ -15,8 +15,12 @@ const Navbar = () => {
 
   return (
     <div
-      className={`navbar fixed top-0 left-0 w-full flex items-center justify-between px-4 py-2 z-10 ${
-        isLandingPage ? "bg-transparent text-white" : "bg-white text-gray-800"
+      className={`navbar ${
+        isLandingPage ? "absolute" : "fixed"
+      } top-0 left-0 w-full flex items-center justify-between px-4 py-2 z-50 ${
+        isLandingPage
+          ? "bg-transparent text-white"
+          : "bg-white text-gray-800 shadow-md"
       }`}
     >
       {/* Left part */}
@@ -28,16 +32,15 @@ const Navbar = () => {
 
       {/* Middle part */}
       <div className="middle-part hidden md:flex space-x-4">
-      {user && user.role === ROLE.CUSTOMER && (
-        <button className="px-4 py-2 text-xl">
-          <Link to="/home">Food Counter</Link>
-        </button>
-      )}
+        {user && user.role === ROLE.CUSTOMER && (
+          <button className="px-4 py-2 text-xl">
+            <Link to="/home">Food Counter</Link>
+          </button>
+        )}
 
         <button className="px-4 py-2 text-xl">
           <Link to="/profile">Profile</Link>
         </button>
-
 
         {user && user.role === ROLE.ADMIN && (
           <button className="px-4 py-2 text-xl">
@@ -45,31 +48,32 @@ const Navbar = () => {
           </button>
         )}
 
-        {user && user.role === ROLE.MERCHANT && (<button className="px-4 py-2 text-xl">
-          <Link to="/merchant">Merchant Panel</Link>
-        </button>
+        {user && user.role === ROLE.MERCHANT && (
+          <button className="px-4 py-2 text-xl">
+            <Link to="/merchant">Merchant Panel</Link>
+          </button>
         )}
 
         {user && user.role === ROLE.ADMIN && (
-        <button className="px-4 py-2 text-xl">
-          <Link to="/admin">Admin Panel</Link>
-        </button>
+          <button className="px-4 py-2 text-xl">
+            <Link to="/admin">Admin Panel</Link>
+          </button>
         )}
       </div>
 
       {/* Right part */}
       <div className="right-part flex items-center space-x-4">
-      {user && user.role === ROLE.CUSTOMER && (
-        <button className="relative px-4 py-2 text-2xl">
-          <Link to="/cart">
-            <i className="fi fi-rs-shopping-cart"></i>
-          </Link>
-          {/* Cart count badge */}
-          <span className="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full transform translate-x-2 -translate-y-2">
-            {quantity}
-          </span>
-        </button>
-      )}
+        {user && user.role === ROLE.CUSTOMER && (
+          <button className="relative px-4 py-2 text-2xl">
+            <Link to="/cart">
+              <i className="fi fi-rs-shopping-cart"></i>
+            </Link>
+            {/* Cart count badge */}
+            <span className="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full transform translate-x-2 -translate-y-2">
+              {quantity}
+            </span>
+          </button>
+        )}
       </div>
 
       {/* Mobile menu */}
