@@ -28,7 +28,7 @@ const LandingPage = () => {
           />
           {/* App Name Overlay */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <h1 className="text-7xl md:text-8xl font-bold text-white tracking-wide 
+            <h1 className="text-7xl md:text-8xl font-bold text-roboto text-white tracking-wide 
               drop-shadow-2xl animate-fade-in">
               CAFETERIA
             </h1>
@@ -44,7 +44,7 @@ const LandingPage = () => {
           style={{ top: "-4vh" }}
         >
           <button
-            className="p-5 rounded-4xl bg-red-100 font-bold text-xl cursor-pointer transition transform hover:scale-105 hover:bg-red-200"
+            className="p-5 rounded-2xl bg-red-100 font-bold text-xl cursor-pointer transition transform hover:scale-105 hover:bg-red-200"
             onClick={handleNavigate}
           >
             Pick your meal
