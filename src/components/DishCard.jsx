@@ -9,10 +9,13 @@ import { deleteDish } from "@/slices/counterSlice";
 import { useNavigate } from "react-router-dom";
 import { selectCurrentUser } from "@/slices/authSlice";
 import { ROLE } from "@/constants";
+import { CircularProgress } from "@mui/material";
 
 const DishCard = ({ dish }) => {
   const navigate = useNavigate();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const dispatch = useDispatch();
   const cartItems = useSelector(selectItemFromCart);
   const user = useSelector(selectCurrentUser);
@@ -22,6 +25,7 @@ const DishCard = ({ dish }) => {
   };
 
   const handleAddToCart = async (dish) => {
+    setIsAddingToCart(true);
     try {
       const dishResponse = await axios.post(
         `${BASE_URL}/cart`,
@@ -38,9 +42,13 @@ const DishCard = ({ dish }) => {
     } catch (error) {
       console.error("Failed to add item to cart", error);
     }
+    finally{
+      setIsAddingToCart(false);
+    }
   };
 
   const handleDeleteDish = async (id) => {
+    setIsDeleting(true);
     try {
       const dishId = id;
       const response = await axios.delete(`${BASE_URL}/dishes/${dishId}`, {
@@ -52,6 +60,9 @@ const DishCard = ({ dish }) => {
       console.log("Dish deleted successfully", response.data);
     } catch (error) {
       console.error("Failed to delete dish", error);
+    }
+    finally {
+      setIsDeleting(false);
     }
   };
 
@@ -115,20 +126,31 @@ const DishCard = ({ dish }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="button-div ">
-          <div className="flex items-center justify-between border-t pt-3 ">
+{/* Action Buttons */}
+<div className="button-div">
+          <div className="flex items-center justify-between border-t pt-3">
             {user && user.role === ROLE.CUSTOMER && (
               <button
                 onClick={() =>
                   isItemInCart(dish) ? navigateToCart() : handleAddToCart(dish)
                 }
+                disabled={isAddingToCart || isItemInCart(dish)}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isItemInCart(dish)
                     ? "bg-slate-200 text-slate-600 hover:bg-slate-300"
                     : "bg-blue-600 text-white hover:bg-blue-700"
-                }`}
+                } disabled:opacity-75 disabled:cursor-not-allowed`}
               >
-                {isItemInCart(dish) ? "View Cart" : "Add to Cart"}
+                {isAddingToCart ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CircularProgress size={16} className="text-white" />
+                    Adding...
+                  </div>
+                ) : isItemInCart(dish) ? (
+                  "View Cart"
+                ) : (
+                  "Add to Cart"
+                )}
               </button>
             )}
 
@@ -142,16 +164,20 @@ const DishCard = ({ dish }) => {
                 </button>
                 <button
                   onClick={() => handleDeleteDish(dish._id)}
-                  className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  disabled={isDeleting}
+                  className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-75 disabled:cursor-not-allowed"
                 >
-                  <i className="fi fi-rs-trash text-sm" />
+                  {isDeleting ? (
+                    <CircularProgress size={16} className="text-slate-600" />
+                  ) : (
+                    <i className="fi fi-rs-trash text-sm" />
+                  )}
                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
-
       {/* Edit Modal */}
       {isEditModalOpen && (
         <EditDishModal dish={dish} onClose={handleModalClose} />

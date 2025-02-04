@@ -65,11 +65,12 @@ const EditDishModal = ({ dish, onClose }) => {
 
     try {
       setIsLoading(true);
-      const response = await axios.put(`${BASE_URL}/dishes/${dish._id}`,{
+      // console.log("formData", formData);
+      const response = await axios.put(`${BASE_URL}/dishes/${dish._id}`, formData, {
         headers : {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          Authorization : `Bearer ${localStorage.getItem("token")}`
         }
-      }, formData);
+      });
       
       if (response.status === 200) {
         dispatch(updateDish(response.data.dish));

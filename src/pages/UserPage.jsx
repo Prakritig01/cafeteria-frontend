@@ -76,43 +76,44 @@ const UserPage = () => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationSeverity, setNotificationSeverity] = useState("success");
+  const [roleFilter, setRoleFilter] = useState("");
 
-  const showNotification = useCallback((message, severity) => {
+  const showNotification = (message, severity) => {
     setNotificationMessage(message);
     setNotificationSeverity(severity);
     setNotificationOpen(true);
-  }, []);
-
-  const fetchUsers = async (force = false) => {
-    if (!isInitialLoad && !force) return;
-    
-    const token = localStorage.getItem("token");
-    if (!token) {
-      showNotification("No authentication token found", "error");
-      return;
-    }
-  
-    try {
-      const response = await axios.get(`${BASE_URL}/users`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      dispatch(setUsers(response.data.users));
-    } catch (error) {
-      showNotification("Failed to fetch users", "error");
-    } finally {
-      setIsInitialLoad(false);
-    }
   };
   
+
   // In useEffect
   useEffect(() => {
-    fetchUsers(true);
-  }, [isInitialLoad]); // Add all dependencies used in fetchUsers
+    const fetchUsers = async () => {
+      if (!isInitialLoad) return;
 
-  useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setNotificationMessage("No authentication token found");
+        setNotificationSeverity("error");
+        setNotificationOpen(true);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${BASE_URL}/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        dispatch(setUsers(response.data.users));
+      } catch (error) {
+        setNotificationMessage("Failed to fetch users");
+        setNotificationSeverity("error");
+        setNotificationOpen(true);
+      } finally {
+        setIsInitialLoad(false);
+      }
+    };
+
     fetchUsers();
-    return () => {};
-  }, [fetchUsers]);
+  }, [isInitialLoad, dispatch]);
 
   const handleRoleChange = useCallback((user, newRole) => {
     setSelectedUser({ id: user._id, name: user.name, newRole });
@@ -186,6 +187,21 @@ const UserPage = () => {
       >
         User Management
       </Typography>
+
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+          <Select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem value="">All Roles</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
+            <MenuItem value="customer">Customer</MenuItem>
+            <MenuItem value="merchant">Merchant</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
       <TableWrapper>
         <StyledTableContainer component={Paper}>

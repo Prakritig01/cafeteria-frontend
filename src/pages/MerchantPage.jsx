@@ -12,6 +12,7 @@ import { setLoading, selectLoading } from "@/slices/counterSlice";
 import { BASE_URL } from "@/utils/apiConfig";
 import NavbarLayout from "@/components/NavbarLayout";
 import { useNavigate } from "react-router-dom";
+import LoadingOverlay from "@/components/Loading";
 
 const MerchantPage = () => {
   const dispatch = useDispatch();
@@ -20,7 +21,7 @@ const MerchantPage = () => {
   const counters = useSelector(selectMerchantCounters);
   const loading = useSelector(selectLoading);
 
-  console.log("currentUser", currentUser);
+  // console.log("currentUser", currentUser);
 
   useEffect(() => {
     const fetchMerchantCounters = async () => {
@@ -34,7 +35,7 @@ const MerchantPage = () => {
             }
           }
         );
-        console.log(response.data.counter);
+        // console.log(response.data.counter);
         dispatch(setMerchantCounters(response.data.counter));
       } catch (error) {
         console.error("Error fetching counters:", error);
@@ -50,11 +51,7 @@ const MerchantPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingOverlay />;
   }
 
   return (
