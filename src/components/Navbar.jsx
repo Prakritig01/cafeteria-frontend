@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
 import { selectTotalQuantity } from "@/slices/cartSlice";
@@ -11,6 +11,7 @@ const Navbar = () => {
   const user = useSelector(selectCurrentUser);
 
   const isLandingPage = location.pathname === "/";
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Active style for NavLinks
   const getNavLinkStyle = ({ isActive }) => {
@@ -21,6 +22,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <div
       className={`navbar ${
         isLandingPage ? "absolute" : "fixed"
@@ -33,7 +35,7 @@ const Navbar = () => {
       {/* Left part */}
       <div className="left-part">
         <h3 className="text-lg font-bold">
-          <NavLink to="/">Cafeteria</NavLink>
+          <NavLink to="/">Palate Voyager</NavLink>
         </h3>
       </div>
 
@@ -92,12 +94,64 @@ const Navbar = () => {
       </div>
 
       {/* Mobile menu */}
-      <div className="middle-part md:hidden">
-        <button className="text-gray-700 bg-gray-200 rounded px-2 py-1">
+      <div className="md:hidden flex items-center">
+        <button
+          className="text-gray-700 bg-gray-200 rounded px-2 py-1"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
           ☰ Menu
         </button>
       </div>
     </div>
+
+    {/* Mobile Dropdown Menu */}
+    {isMobileMenuOpen && (
+      <div className={`md:hidden absolute top-16 left-0 w-full shadow-lg z-50 ${isMobileMenuOpen ? 'bg-gray-100' : 'bg-white'}`}>
+        <div className="flex flex-col space-y-4 p-4">
+          {user?.role === ROLE.CUSTOMER && (
+            <NavLink to="/home" className={getNavLinkStyle}>
+              Food Counter
+            </NavLink>
+          )}
+
+          <NavLink to="/profile" className={getNavLinkStyle}>
+            Profile
+          </NavLink>
+
+          {user?.role === ROLE.ADMIN && (
+            <NavLink to="/users" className={getNavLinkStyle}>
+              Users
+            </NavLink>
+          )}
+
+          {user?.role === ROLE.MERCHANT && (
+            <NavLink to="/merchant" className={getNavLinkStyle}>
+              Merchant Panel
+            </NavLink>
+          )}
+
+          {user?.role === ROLE.ADMIN && (
+            <NavLink to="/admin" className={getNavLinkStyle}>
+              Admin Panel
+            </NavLink>
+          )}
+
+          {/* Cart in mobile */}
+          {user?.role === ROLE.CUSTOMER && (
+            <NavLink
+              to="/cart"
+              className="relative px-4 py-2 text-2xl flex items-center"
+            >
+              <i className="fi fi-rs-shopping-cart"></i>
+              <span className="absolute top-2 right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-red-500 text-white rounded-full transform translate-x-2 -translate-y-2">
+                {quantity}
+              </span>
+            </NavLink>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
