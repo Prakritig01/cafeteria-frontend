@@ -27,24 +27,23 @@ const LandingPage = () => {
             className="w-full h-full object-cover"
           />
           {/* App Name Overlay */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <h1 className="text-7xl md:text-8xl font-bold text-roboto text-white tracking-wide 
-              drop-shadow-2xl animate-fade-in">
-              CAFETERIA
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center px-4 sm:px-8">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold text-roboto text-white tracking-wide drop-shadow-2xl animate-fade-in">
+              PALATE VOYAGER
             </h1>
-            <p className="text-xl md:text-2xl text-white mt-4 font-semibold 
-              drop-shadow-lg">
-              Discover Your Perfect Meal
+            <p className="text-lg sm:text-xl md:text-xl text-white mt-4 font-semibold drop-shadow-lg animate-fade-in">
+              Taste the world's finest dishes, from street food to gourmet, all in one place.
             </p>
           </div>
         </div>
+
         {/* Pick Your Meal Button */}
         <div
           className="pick-your-meal-btn text-center relative"
           style={{ top: "-4vh" }}
         >
           <button
-            className="p-5 rounded-2xl bg-red-100 font-bold text-xl cursor-pointer transition transform hover:scale-105 hover:bg-red-200"
+            className="p-4 sm:p-5 rounded-2xl bg-red-100 font-bold text-lg sm:text-xl cursor-pointer transition transform hover:scale-105 hover:bg-red-200"
             onClick={handleNavigate}
           >
             Pick your meal
