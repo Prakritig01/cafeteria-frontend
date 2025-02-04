@@ -19,6 +19,7 @@ import {
   setCurrentCounter,
 } from "@/slices/counterSlice";
 import { selectAllMerchants, setMerchants } from "@/slices/authSlice";
+import LoadingOverlay from "@/components/Loading";
 
 const AdminPage = () => {
   const dispatch = useDispatch();
@@ -133,11 +134,7 @@ const AdminPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <CircularProgress />
-      </div>
-    );
+    return <LoadingOverlay />;
   }
 
   return (

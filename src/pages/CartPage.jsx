@@ -6,12 +6,17 @@ import CircularProgress from "@mui/material/CircularProgress";
 import NavbarLayout from "@/components/NavbarLayout";
 import { BASE_URL } from "@/utils/apiConfig";
 import axios from "axios";
+import LoadingOverlay from "@/components/Loading";
 
 
 const CartPage = () => {
   const cartItems = useSelector(selectItemFromCart);
   const loading = useSelector(selectLoading);
   const dispatch = useDispatch();
+
+  // if (loading) {
+  //   return <LoadingOverlay />;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 mt-16">

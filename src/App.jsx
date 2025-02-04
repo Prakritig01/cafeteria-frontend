@@ -19,7 +19,7 @@ import NavbarLayout from "./components/NavbarLayout";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage, { Auth } from "./pages/LoginPage";
 import { CircularProgress } from "@mui/material";
-
+import LoadingOverlay from "@/components/Loading";
 
 function App() {
   const dispatch = useDispatch();
@@ -38,7 +38,7 @@ function App() {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        const { user,cart } = response.data;
+        const { user, cart } = response.data;
         // console.log(" in useEffect", user);
         dispatch(setCurrentUser(user));
         dispatch(setCart(cart || []));
@@ -60,13 +60,9 @@ function App() {
     };
   }, []);
 
-  // if (loading) {
-  //   return (
-  //     <div className="loading-screen">
-  //       <CircularProgress />
-  //     </div>
-  //   );
-  // }
+  if (loading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <div className="app">

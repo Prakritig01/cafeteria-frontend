@@ -30,6 +30,16 @@ import {
 } from "@mui/material";
 import { selectCurrentUser } from "@/slices/authSlice";
 import { ROLE } from "@/constants";
+import { Loader2 } from "lucide-react";
+
+const LoadingOverlay = () => (
+  <div className="fixed inset-0 backdrop-blur-xs z-50 flex items-center justify-center">
+    <div className="bg-gray-400 rounded-lg p-4 flex items-center gap-3">
+      <Loader2 className="h-6 w-6 text-white animate-spin" />
+      <span className="text-gray-200">Processing...</span>
+    </div>
+  </div>
+);
 
 const CounterPage = () => {
   const { counterId } = useParams();
@@ -154,15 +164,13 @@ const CounterPage = () => {
   }, [counterId]);
 
   return (
-    <div className="dishes-container py-6 px-4 w-full flex flex-col mt-11">
+    <div className="dishes-container py-6 px-4 w-full flex flex-col mt-14">
       {isLoading ? (
-        <div className="flex justify-center items-center h-screen">
-          <CircularProgress />
-        </div>
+        <LoadingOverlay />
       ) : (
         <>
           {currentCounter ? (
-            <h3 className="text-3xl font-bold text-center mb-6">{currentCounter.name}</h3>
+            <h3 className="text-3xl font-bold text-center mt-2">{currentCounter.name}</h3>
           ) : (
             <p className="text-center text-gray-600">Counter information is not available.</p>
           )}
@@ -185,7 +193,7 @@ const CounterPage = () => {
                 No dishes available!
               </p>
             ) : (
-              <div className="dishes flex flex-wrap gap-6 justify-center p-6">
+              <div className="dishes flex flex-wrap gap-6 justify-center p-6 ">
                 {dishes.map((dish) => (
                   <DishCard key={dish._id} dish={dish} />
                 ))}
