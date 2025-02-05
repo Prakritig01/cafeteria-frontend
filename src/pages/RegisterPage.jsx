@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Snackbar from "@mui/material/Snackbar"; // Import Snackbar
 import Alert from "@mui/material/Alert"; // Import Alert
+import { NavLink } from 'react-router-dom';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -41,6 +42,15 @@ const RegisterPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Branding Section */}
+      <div className="mb-8 text-center">
+        <NavLink
+          to="/"
+          className="inline-block text-gray-800 hover:underline text-lg"
+        >
+          <h1 className="text-4xl font-bold text-gray-800">Palate Voyager</h1>
+        </NavLink>
+      </div>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Create a new account
