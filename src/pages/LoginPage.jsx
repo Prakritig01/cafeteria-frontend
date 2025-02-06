@@ -6,17 +6,16 @@ import {
 import { BASE_URL } from "@/utils/apiConfig";
 import axios from "axios";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Link,
   useNavigate,
   useLocation,
   Outlet,
   Navigate,
+  NavLink,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { setCart } from "@/slices/cartSlice";
-import { NavLink } from "react-router-dom";
 
 export function Auth() {
   const user = useSelector(selectCurrentUser);
@@ -24,13 +23,9 @@ export function Auth() {
   const loading = useSelector(selectLoading);
 
   if (loading) {
-    return;
+    return null;
   }
-  return user ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" state={{ from: location.pathname }} />
-  );
+  return user ? <Outlet /> : <Navigate to="/login" state={{ from: location.pathname }} />;
 }
 
 const LoginPage = () => {
@@ -43,6 +38,7 @@ const LoginPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // state to toggle password visibility
   const nextPage = location.state?.from || "/home";
 
   const handleInputChange = (e) => {
@@ -162,18 +158,69 @@ const LoginPage = () => {
               >
                 Password
               </label>
-              <div className="mt-1">
+              <div className="mt-1 relative">
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pr-10 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   disabled={isLoading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 focus:outline-none"
+                >
+                  {showPassword ? (
+                    // Eye-off icon (password is visible)
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.077.17-2.112.486-3.085m3.13-1.764A9.956 9.956 0 0112 5c5.523 0 10 4.477 10 10 0 1.086-.174 2.13-.5 3.105M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 3l18 18"
+                      />
+                    </svg>
+                  ) : (
+                    // Eye icon (password is hidden)
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  )}
+                </button>
               </div>
             </div>
 
